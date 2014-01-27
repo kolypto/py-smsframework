@@ -8,7 +8,7 @@ class OutgoingMessage(object):
     """
 
     #: Routing values
-    routing = None
+    routing_values = None
 
     #: Unique message id, populated by the provider on send
     msgid = None
@@ -77,5 +77,5 @@ class OutgoingMessage(object):
 
             :rtype: OutgoingMessage
         """
-        self.routing = args
+        self.routing_values = args
         return self

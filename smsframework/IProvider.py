@@ -29,18 +29,15 @@ class IProvider(object):
             * Use `message.params` for provider-dependent configuration
             * Raise exceptions from `exc.py` for errors
 
-            :type message: smsframework.data.OutgoingMessage.OutgoingMessage
+            :type message: data.OutgoingMessage
             :param message: The message to send
             :rtype: OutgoingMessage
             :returns: The sent message with populated fields
-            :raises MessageSendError: generic errors
-            :raises AuthError: authentication failed
-            :raises LimitsError: sending limits exceeded
-            :raises CreditError: not enough money on account
+            :raises MessageSendError: sending errors
         """
         raise NotImplementedError('Provider.send not implemented')
 
-    def receiver(self):
+    def make_receiver(self):
         """ Get a Blueprint for the HTTP receiver
 
             :rtype: flask.Blueprint
