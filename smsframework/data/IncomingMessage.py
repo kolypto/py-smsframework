@@ -1,0 +1,30 @@
+from datetime import datetime
+
+class IncomingMessage(object):
+    """ Incoming Message: Mobile Originated (MO)
+
+        Represents a message received from the provider
+        """
+
+    def __init__(self, provider, src, body, dst=None, rtime=None, meta=None):
+        """ Create the received message struct
+
+            :type provider: str
+            :param provider: Provider name
+            :type src: str
+            :param src: Source number (sender)
+            :type body: str | unicode
+            :param body: Message contents
+            :type dst: str | None
+            :param dst: Destination number (receiver)
+            :type rtime: datetime
+            :param rtime: Received time, naive, UTC
+            :type meta: dict | None
+            :param meta: Provider-dependent message info
+        """
+        self.provider = provider
+        self.src = src
+        self.body = body
+        self.dst = dst
+        self.rtime = rtime or datetime.utcnow()
+        self.meta = meta or {}
