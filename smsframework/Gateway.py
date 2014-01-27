@@ -76,3 +76,60 @@ class Gateway(object):
         return self._providers[name]
 
     #endregion
+
+
+
+    #region Sending
+
+    def router(self, message, *args):
+        """ Router function that decides which provider to use for the given message for sending.
+
+            Replace it with a function of your choice for custom routing.
+
+            :type message: data.OutgoingMessage
+            :param message: The message being sent
+            :type args: Message routing values, as specified with the OutgoingMessage.route
+            :rtype: str | None
+            :returns: Provider name to use, or None to use the default one
+        """
+        # By default, this always uses the default provider
+        return None
+
+    def send(self, message):
+        """ Send a message object
+
+            :type message: data.OutgoingMessage
+            :param message: The message to send
+            :rtype: data.OutgoingMessage
+            :returns: The sent message with populated fields
+            :raises KeyError: unknown provider name
+            :raises MessageSendError: generic errors
+            :raises AuthError: authentication failed
+            :raises LimitsError: sending limits exceeded
+            :raises CreditError: not enough money on account
+        """
+        # Which provider to use?
+        provider = self._default_provider  # default
+        if message.provider is not None:
+            provider = self.get_provider(message.provider)
+        else:
+            # Apply routing
+            if message.routing_values is not None: # Use the default provider when no routing values are given
+                # Routing values are present
+                provider_name = self.router(*message.routing_values)
+                if provider_name:
+                    provider = self.get_provider(provider_name)
+
+        # Set message provider name
+        message.provider = provider.name
+
+        # Send the message using the provider
+        message = provider.send(message)
+
+        # Emit the send event
+        self.onSend(message)
+
+        # Finish
+        return message
+
+    #region
