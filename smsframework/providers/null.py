@@ -11,14 +11,11 @@ class NullProvider(IProvider):
         Receipt: Not implemented
     """
 
-    def __init__(self, gateway, name, **config):
-        super(NullProvider, self).__init__(gateway, name, **config)
+    def __init__(self, gateway, name):
+        super(NullProvider, self).__init__(gateway, name)
         self._msgid = 0
 
     def send(self, message):
-        """
-            :type message: smsframework.data.OutgoingMessage.OutgoingMessage
-        """
         self._msgid += 1
         message.msgid = str(self._msgid)
         return message

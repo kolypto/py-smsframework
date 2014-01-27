@@ -23,21 +23,21 @@ class Gateway(object):
 
     #region Providers
 
-    def add_provider(self, name, Provider, config=None):
+    def add_provider(self, name, Provider, **config):
         """ Configure a provider
 
             :type name: str
             :param name: Provider name that will be used to uniquely identify it
             :type Provider: type
             :param Provider: Provider class
+            :param config: Provider configuration. Please refer to the Provider documentation.
         """
         assert issubclass(Provider, IProvider), 'Provider does not implement IProvider'
         assert isinstance(name, str), 'Provider name must be a string'
-        if config is None: config = {}
         assert isinstance(config, dict), 'Provider config must be a dict or None'
 
         # Configure
-        provider = Provider(self, name, config)
+        provider = Provider(self, name, **config)
 
         # Register
         assert name not in self._providers, 'Provider is already registered'
