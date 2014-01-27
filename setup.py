@@ -9,7 +9,7 @@ setup(
 
     url='https://github.com/kolypto/py-smsframework',
     license='MIT',
-    description='SMS framework with pluggable providers',
+    description="Bi-directional SMS gateway with pluggable providers",
     long_description=open('README.rst').read(),
     keywords=['sms', 'message', 'notification', 'receive', 'send'],
 
