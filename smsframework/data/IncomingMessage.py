@@ -1,5 +1,6 @@
 from datetime import datetime
 
+
 class IncomingMessage(object):
     """ Incoming Message: Mobile Originated (MO)
 

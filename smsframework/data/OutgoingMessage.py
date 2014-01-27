@@ -22,7 +22,7 @@ class OutgoingMessage(object):
             :param src: Source phone number, digits only
             :type provider: str | None
             :param provider: Provider name to use for sending.
-                If not specified explicitly, the message will be routed by the :class:`Gateway`,
+                If not specified explicitly, the message will be routed by the :class:`smsframework.Gateway`,
                 which by default selects the first available provider.
             :type route: list | tuple | None
             :param route: Routing values for the message: are used by the routing method
