@@ -59,14 +59,14 @@ class Gateway(object):
     #region Providers
 
     def add_provider(self, name, Provider, **config):
-        """ Configure a provider
+        """ Register a provider on the gateway
 
             The first provider defined becomes the default one: used in case the routing function has no better idea.
 
             :type name: str
             :param name: Provider name that will be used to uniquely identify it
             :type Provider: type
-            :param Provider: Provider class
+            :param Provider: Provider class that inherits from `smsframework.IProvider`
             :param config: Provider configuration. Please refer to the Provider documentation.
             :rtype: IProvider
             :returns: The created provider
@@ -143,12 +143,11 @@ class Gateway(object):
             :param message: The message to send
             :rtype: data.OutgoingMessage
             :returns: The sent message with populated fields
-            :raises AssertionError: Wrong provider name used (router or OutgoingMessage)
-            :raises KeyError: unknown provider name
+            :raises AssertionError: wrong provider name encountered (returned by the router, or provided to OutgoingMessage)
             :raises MessageSendError: generic errors
-            :raises AuthError: authentication failed
+            :raises AuthError: provider authentication failed
             :raises LimitsError: sending limits exceeded
-            :raises CreditError: not enough money on account
+            :raises CreditError: not enough money on the account
         """
         # Which provider to use?
         provider_name = self._default_provider  # default

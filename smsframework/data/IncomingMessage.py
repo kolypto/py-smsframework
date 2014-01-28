@@ -1,4 +1,5 @@
 from datetime import datetime
+from ..lib import digits_only
 
 
 class IncomingMessage(object):
@@ -27,9 +28,9 @@ class IncomingMessage(object):
             :param meta: Provider-dependent message info
         """
         self.msgid = msgid
-        self.src = src
+        self.src = digits_only(src)
         self.body = body
-        self.dst = dst
+        self.dst = digits_only(dst) if dst else None
         self.rtime = rtime or datetime.utcnow()
         self.meta = meta or {}
 

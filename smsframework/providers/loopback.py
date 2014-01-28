@@ -13,7 +13,7 @@ class LoopbackProvider(NullProvider):
         Sending: sends message to a registered subscriber (see: :meth:`LoopbackProvider.subscribe`),
             silently ignores other messages
 
-        Receipt: mocking with a method
+        Receipt: simulation with a method
 
         Status: always reports success
     """
@@ -72,7 +72,7 @@ class LoopbackProvider(NullProvider):
             :param number: Subscriber phone number
             :type callback: callable
             :param callback: A callback(OutgoingMessage) which handles the messages directed to the subscriber.
-                Note that the message is augmented with the .reply(str) method which allows to send a reply easily!
+                The message object is augmented with the .reply(str) method which allows to send a reply easily!
             :rtype: LoopbackProvider
         """
         self._subscribers[digits_only(number)] = callback

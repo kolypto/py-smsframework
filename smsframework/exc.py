@@ -30,7 +30,7 @@ class LimitsError(ProviderError):
 
 
 class CreditError(ProviderError):
-    """ Not enough money on account """
+    """ Not enough money on the account """
 
 
 #endregion

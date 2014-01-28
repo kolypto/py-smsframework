@@ -4,7 +4,7 @@ from .null import NullProvider
 class LogProvider(NullProvider):
     """ Log Provider
 
-        Logs the outgoing messages.
+        Logs the outgoing messages to a python logger provided as the config option.
 
         Configuration: target logger
 
