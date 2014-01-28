@@ -7,11 +7,12 @@ class IncomingMessage(object):
         Represents a message received from the provider
         """
 
-    def __init__(self, provider, src, body, msgid=None, dst=None, rtime=None, meta=None):
+    #: Provider name
+    provider = None
+
+    def __init__(self, src, body, msgid=None, dst=None, rtime=None, meta=None):
         """ Create the received message struct
 
-            :type provider: str
-            :param provider: Provider name
             :type src: str
             :param src: Source number (sender)
             :type body: str | unicode
@@ -25,7 +26,6 @@ class IncomingMessage(object):
             :type meta: dict | None
             :param meta: Provider-dependent message info
         """
-        self.provider = provider
         self.msgid = msgid
         self.src = src
         self.body = body

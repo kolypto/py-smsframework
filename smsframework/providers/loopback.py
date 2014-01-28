@@ -54,7 +54,7 @@ class LoopbackProvider(NullProvider):
         """
         # Create the message
         self._msgid += 1
-        message = IncomingMessage(self.name, src, body, self._msgid)
+        message = IncomingMessage(src, body, self._msgid)
 
         # Log traffic
         self._traffic.append(message)
@@ -95,7 +95,7 @@ class LoopbackProvider(NullProvider):
             StatusCls = MessageDelivered if subscriber_found else MessageAccepted
 
             # Handle status
-            status = StatusCls(self.name, message.msgid, status='OK')
+            status = StatusCls(message.msgid, status='OK')
             self._receive_status(status)
 
         return message

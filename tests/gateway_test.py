@@ -91,8 +91,8 @@ class GatewatTest(unittest.TestCase):
         # Emit some events
         provider = self.gw.get_provider('one')
         self.gw.send(OutgoingMessage('', ''))
-        provider._receive_message(IncomingMessage(provider.name, '', ''))
-        provider._receive_status(MessageStatus(provider.name, ''))
+        provider._receive_message(IncomingMessage('', ''))
+        provider._receive_status(MessageStatus(''))
 
         # Check
         self.assertEqual(self.recv, 1)

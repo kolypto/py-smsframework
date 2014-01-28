@@ -4,6 +4,9 @@ class MessageStatus(object):
         Represent network's response to a sent message.
     """
 
+    #: Provider name
+    provider = None
+
     #: Was the message accepted by the network?
     #: True | False | None (unknown)
     accepted = None
@@ -25,11 +28,9 @@ class MessageStatus(object):
     #: Provider-dependent info dict, if any
     meta = None
 
-    def __init__(self, provider, msgid, status=None, meta=None, error=None):
+    def __init__(self, msgid, status=None, meta=None, error=None):
         """ Create the message status struct
 
-            :type provider: str | None
-            :param provider: Provider name that has reported the status
             :type msgid: str
             :param msgid: Unique message id
             :type status: str | None
@@ -39,7 +40,6 @@ class MessageStatus(object):
             :type error: str | None
             :param error: Error string, if any
         """
-        self.provider = provider
         self.msgid = msgid
         self.status = status
         self.meta = meta or {}
