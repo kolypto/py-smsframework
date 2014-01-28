@@ -1,4 +1,5 @@
 from .OutgoingMessageOptions import OutgoingMessageOptions
+from ..lib import digits_only
 
 
 class OutgoingMessage(object):
@@ -20,19 +21,19 @@ class OutgoingMessage(object):
         """ Create a message for sending
 
             :type dst: str | None
-            :param dst: Destination phone number, digits only
+            :param dst: Destination phone number. Non-digit chars are cut off
             :type body: str | unicode
             :param body: Message
 
             :type src: str | None
-            :param src: Source phone number, digits only
+            :param src: Source phone number. Non-digit chars are cut off
             :type provider: str | None
             :param provider: Provider name to use for sending.
                 If not specified explicitly, the message will be routed using the routing values:
                 see :meth:`OutgoingMessage.route`
         """
-        self.src = src
-        self.dst = dst
+        self.src = digits_only(src) if src else None
+        self.dst = digits_only(dst)
         self.body = body
 
         self.provider = provider
