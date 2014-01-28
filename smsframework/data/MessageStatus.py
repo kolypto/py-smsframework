@@ -44,6 +44,16 @@ class MessageStatus(object):
         self.status = status
         self.meta = meta or {}
 
+    def __repr__(self):
+        return '{cls}({provider!r}, {msgid!r}, status={status!r}, error={error!r})'.format(
+            cls=self.__class__.__name__,
+            provider=self.provider,
+            msgid=self.msgid,
+            status=self.status,
+            error=self.error
+        )
+
+
 
 class MessageAccepted(MessageStatus):
     """ Accepted for processing

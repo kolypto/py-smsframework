@@ -80,3 +80,12 @@ class OutgoingMessage(object):
         """
         self.routing_values = args
         return self
+
+    def __repr__(self):
+        return '{cls}({dst!r}, {body!r}, src={src!r}, provider={provider!r})'.format(
+            cls=self.__class__.__name__,
+            dst=self.dst,
+            body=self.body,
+            src=self.src,
+            provider=self.provider
+        )

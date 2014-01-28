@@ -32,3 +32,12 @@ class IncomingMessage(object):
         self.dst = dst
         self.rtime = rtime or datetime.utcnow()
         self.meta = meta or {}
+
+    def __repr__(self):
+        return '{cls}({provider!r}, {src!r}, {body!r}, msgid={msgid!r})'.format(
+            cls=self.__class__.__name__,
+            provider=self.provider,
+            src=self.src,
+            body=self.body,
+            msgid=self.msgid
+        )
