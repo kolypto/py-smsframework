@@ -8,4 +8,4 @@ def digits_only(num):
         :param num: Phone number
         :rtype: str
     """
-    return re.sub(r'^\d+', '', num)
+    return re.sub(r'[^\d]+', '', num)

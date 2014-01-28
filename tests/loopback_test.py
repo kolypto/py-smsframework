@@ -77,12 +77,12 @@ class GatewatTest(unittest.TestCase):
 
     def test_subscriber3(self):
         """ Test replying subscriber """
-        msg = self.gw.send(OutgoingMessage('+3', 'hi!').options())
+        msg = self.gw.send(OutgoingMessage('++3', 'hi!').options())
 
         traffic = self.provider.get_traffic()
         self.assertIs(traffic[0], msg)
         self.assertIsInstance(traffic[1], IncomingMessage)
-        self.assertEqual(traffic[1].src, '+3')
+        self.assertEqual(traffic[1].src, '3')
         self.assertEqual(traffic[1].dst, None)
         self.assertEqual(traffic[1].body, 'hello')
 
@@ -93,7 +93,7 @@ class GatewatTest(unittest.TestCase):
 
     def test_subscriber3_noreply(self):
         """ Test replying subscriber with disabled replies """
-        msg = self.gw.send(OutgoingMessage('+3', 'hi!').options(status_report=True, allow_reply=False))
+        msg = self.gw.send(OutgoingMessage('3', 'hi!').options(status_report=True, allow_reply=False))
 
         self.assertListEqual(self.provider.get_traffic(), [msg])
         self.assertEqual(len(self.events_log), 2)
