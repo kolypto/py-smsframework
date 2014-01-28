@@ -42,7 +42,7 @@ class MessageStatus(object):
         self.provider = provider
         self.msgid = msgid
         self.status = status
-        self.meta = meta
+        self.meta = meta or {}
 
 
 class MessageAccepted(MessageStatus):

@@ -1,4 +1,3 @@
-from ..IProvider import IProvider
 from .null import NullProvider
 
 
@@ -12,6 +11,8 @@ class LogProvider(NullProvider):
         Sending: does nothing, increments message.msgid, prints the message to the log
 
         Receipt: Not implemented
+
+        Status: Not implemented
     """
 
     def __init__(self, gateway, name, logger):
@@ -31,4 +32,3 @@ class LogProvider(NullProvider):
 
         # Finish
         return super(LogProvider, self).send(message)
-

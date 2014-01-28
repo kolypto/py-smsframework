@@ -4,11 +4,13 @@ from ..IProvider import IProvider
 class NullProvider(IProvider):
     """ Null Provider
 
-        Configuration: nothing
+        Configuration: none
 
         Sending: does nothing, but increments message.msgid
 
         Receipt: Not implemented
+
+        Status: Not implemented
     """
 
     def __init__(self, gateway, name):
