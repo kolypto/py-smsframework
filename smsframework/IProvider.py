@@ -58,6 +58,7 @@ class IProvider(object):
             * Cast phone numbers to digits-only
             * Support both ASCII and Unicode messages
             * Populate `message.msgid` and `message.meta` fields
+            * If this method fails with an exception, the provider is required to respond with an error to the service
 
             :type message: IncomingMessage
             :param message: The received message
@@ -81,6 +82,7 @@ class IProvider(object):
             * Cast phone numbers to digits-only
             * Use proper MessageStatus subclasses
             * Populate `status.msgid` and `status.meta` fields
+            * If this method fails with an exception, the provider is required to respond with an error to the service
 
             :type status: MessageStatus
             :param status: The received status

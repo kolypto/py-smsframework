@@ -68,6 +68,8 @@ class Gateway(object):
             :type Provider: type
             :param Provider: Provider class
             :param config: Provider configuration. Please refer to the Provider documentation.
+            :rtype: IProvider
+            :returns: The created provider
         """
         assert issubclass(Provider, IProvider), 'Provider does not implement IProvider'
         assert isinstance(name, str), 'Provider name must be a string'
@@ -82,6 +84,9 @@ class Gateway(object):
         # If first - set default
         if self.default_provider is None:
             self.default_provider = name
+
+        # Finish
+        return provider
 
     _default_provider = None
 

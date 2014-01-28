@@ -1,12 +1,12 @@
 import unittest
 
 from smsframework import Gateway
-from smsframework.providers import NullProvider, LoopbackProvider
+from smsframework.providers import NullProvider
 from smsframework import OutgoingMessage, IncomingMessage, MessageStatus
 
 
 class GatewatTest(unittest.TestCase):
-    """ Test LoopbackProvider, and the whole smsframework by the way """
+    """ Test Gateway """
 
     def setUp(self):
         self.gw = Gateway()
@@ -84,9 +84,9 @@ class GatewatTest(unittest.TestCase):
         def inc_status(message): self.status += 1
 
         # Hooks
-        self.gw.onReceive = inc_recv
-        self.gw.onSend = inc_send
-        self.gw.onStatus = inc_status
+        self.gw.onReceive += inc_recv
+        self.gw.onSend += inc_send
+        self.gw.onStatus += inc_status
 
         # Emit some events
         provider = self.gw.get_provider('one')

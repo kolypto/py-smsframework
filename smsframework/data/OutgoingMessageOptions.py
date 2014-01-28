@@ -2,7 +2,7 @@ class OutgoingMessageOptions(object):
     """ Sending Options for :class:`OutgoingMessage` """
 
     #: Replies allowed?
-    allow_reply = False
+    allow_reply = True
 
     #: Request a status report from the network?
     status_report = False

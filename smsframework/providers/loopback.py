@@ -70,6 +70,9 @@ class LoopbackProvider(NullProvider):
 
             :type number: str
             :param number: Subscriber phone number
+            :type callback: callable
+            :param callback: A callback(OutgoingMessage) which handles the messages directed to the subscriber.
+                Note that the message is augmented with the .reply(str) method which allows to send a reply easily!
             :rtype: LoopbackProvider
         """
         self._subscribers[digits_only(number)] = callback
@@ -87,6 +90,13 @@ class LoopbackProvider(NullProvider):
         # Deliver to the subscriber
         subscriber_found = message.dst in self._subscribers
         if subscriber_found:
+            # Augment the message with .reply(str)
+            def reply(body):
+                if message.provider_options.allow_reply:
+                    self.received(message.dst, body)
+            message.reply = reply
+
+            # Deliver
             self._subscribers[message.dst](message)
 
         # Delivery notification
