@@ -10,7 +10,7 @@ class IProvider(object):
     def __init__(self, gateway, name, **config):
         """ Initialize the provider
 
-            :type gateway: smsframework.Gateway
+            :type gateway: Gateway
             :param gateway: Parent Gateway
             :type name: str
             :param name: Provider name. Used to uniquely identify the provider
@@ -47,4 +47,52 @@ class IProvider(object):
         raise NotImplementedError('Provider does not support message reception')
 
 
+    #region Receiver callbacks
 
+    def _receive_message(self, message):
+        """ Incoming message callback
+
+            Calls Gateway.onReceive event hook
+
+            Providers are required to:
+            * Cast phone numbers to digits-only
+            * Support both ASCII and Unicode messages
+            * Populate `message.msgid` and `message.meta` fields
+
+            :type message: IncomingMessage
+            :param message: The received message
+            :rtype: IncomingMessage
+        """
+        # Populate fields
+        message.provider = self.name
+
+        # Fire the event hook
+        self.gateway.onReceive(message)
+
+        # Finish
+        return message
+
+    def _receive_status(self, status):
+        """ Incoming status callback
+
+            Calls Gateway.onStatus event hook
+
+            Providers are required to:
+            * Cast phone numbers to digits-only
+            * Use proper MessageStatus subclasses
+            * Populate `status.msgid` and `status.meta` fields
+
+            :type status: MessageStatus
+            :param status: The received status
+            :rtype: MessageStatus
+        """
+        # Populate fields
+        status.provider = self.name
+
+        # Fire the event hook
+        self.gateway.onStatus(status)
+
+        # Finish
+        return status
+
+    #endregion
