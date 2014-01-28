@@ -46,22 +46,35 @@ class MessageStatus(object):
 
 
 class MessageAccepted(MessageStatus):
-    """ Accepted for processing """
+    """ Accepted for processing
+
+        The message contained no errors and was accepted, but not yet delivered.
+        Not all providers report this status.
+    """
     accepted = True
 
 
 class MessageDelivered(MessageAccepted):
-    """ Delivered successfully """
+    """ Delivered successfully
+
+        The message was accepted and finally delivered
+    """
     delivered = True
 
 
 class MessageExpired(MessageAccepted):
-    """ Message has expired """
+    """ Message has expired
+
+        The message was accepted, has stayed idle for some time, and finally expired
+    """
     delivered = False
     expired = True
 
 class MessageError(MessageStatus):
-    """ Error """
+    """ Late Error
+
+        The message was accepted (as no exception was raised by the Gateway.send() method), but later failed
+    """
     accepted = True
     delivered = False
     error = ''
