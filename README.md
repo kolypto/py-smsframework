@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/kolypto/py-smsframework.png?branch=master)](https://travis-ci.org/kolypto/py-miracle)
+[![Build Status](https://api.travis-ci.org/kolypto/py-smsframework.png?branch=master)](https://travis-ci.org/kolypto/py-miracle)
 
 SMSframework
 ============
@@ -14,7 +14,7 @@ Key features:
 * Synchronous message receipt through events
 * Reliable message handling
 * Supports provider APIs (like getting the balance)
-* Providers use [Flask microframework](http://flask.pocoo.org) for message receivers
+* Providers use [Flask microframework](http://flask.pocoo.org) for message receivers (not required)
 * 0 dependencies
 * Unit-tested
 
