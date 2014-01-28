@@ -7,7 +7,42 @@ class Gateway(object):
 
         The primary object to send & receive messages.
 
-        Gateway sends messages through a set of configured providers
+        Sending Steps:
+
+        1. Instantiate the gateway:
+
+            from smsframework import Gateway
+            gw = Gateway()
+
+        1. Register providers with add_provider():
+
+            from smsframework.providers import ClickatellProvider
+            gw.add_provider('main', ClickatellProvider, ...)
+
+        2. You already can send messages with send()!
+
+            from smsframework import OutgoingMessage
+            gw.send(OutgoingMessage('+123456789', 'hi there!'))
+
+        3. Replace the router() function to get customized routing that depends on message fields:
+
+            gw.router = lambda message: 'main'
+
+        4. Use get_provider() to access provider-specific APIs:
+
+            print gw.get_provider('main').get_balance()
+
+        Receiving steps:
+
+        1. Register providers
+        2. Subscribe to onReceive and onStatus events:
+
+            gw.onReceive += my_receive_handler
+            gw.onStatus += my_status_handler
+
+        3. Initialize message receiver URLs with ....
+        4. Visit your provider's control panel and set up the receiver URLs
+        5. Enjoy!
     """
 
     def __init__(self):
