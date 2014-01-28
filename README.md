@@ -26,6 +26,31 @@ Key features:
 Table of Contents
 =================
 
+* <a href="#supported-providers">Supported Providers</a>
+* <a href="#gateway">Gateway</a>
+    * <a href="#providers">Providers</a>
+        * <a href="#gatewayadd_providername-provider-configiprovider">Gateway.add_provider(name, Provider, **config):IProvider</a>
+        * <a href="#gatewaydefault_provider">Gateway.default_provider</a>
+        * <a href="#gatewayget_providernameiprovider">Gateway.get_provider(name):IProvider</a>
+    * <a href="#sending-messages">Sending Messages</a>
+        * <a href="#gatewaysendmessageoutgoingmessage">Gateway.send(message):OutgoingMessage</a>
+    * <a href="#event-hooks">Event Hooks</a>
+        * <a href="#gatewayonsend">Gateway.onSend</a>
+        * <a href="#gatewayonreceive">Gateway.onReceive</a>
+        * <a href="#gatewayonstatus">Gateway.onStatus</a>
+* <a href="#data-objects">Data Objects</a>
+    * <a href="#incomingmessage">IncomingMessage</a>
+    * <a href="#outgoingmessage">OutgoingMessage</a>
+    * <a href="#messagestatus">MessageStatus</a>
+    * <a href="#exceptions">Exceptions</a>
+* <a href="#provider-http-receivers">Provider HTTP Receivers</a>
+* <a href="#message-routing">Message Routing</a>
+    * <a href="#logprovider">LogProvider</a>
+    * <a href="#loopbackprovider">LoopbackProvider</a>
+        * <a href="#loopbackproviderget_trafficlist">LoopbackProvider.get_traffic():list</a>
+        * <a href="#loopbackproviderreceivedsrc-bodyincomingmessage">LoopbackProvider.received(src, body):IncomingMessage</a>
+        * <a href="#loopbackprovidersubscribenumber-callbackiprovider">LoopbackProvider.subscribe(number, callback):IProvider</a> 
+
 
 
 
@@ -305,6 +330,7 @@ def router(message, module, type):
         return None  # Use the default provider ('primary') for everything else
 
     self.gw.router = router
+```
 
 Router function is also the right place to specify provider-specific options.
 
