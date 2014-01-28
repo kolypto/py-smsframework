@@ -61,6 +61,8 @@ class Gateway(object):
     def add_provider(self, name, Provider, **config):
         """ Configure a provider
 
+            The first provider defined becomes the default one: used in case the routing function has no better idea.
+
             :type name: str
             :param name: Provider name that will be used to uniquely identify it
             :type Provider: type
@@ -69,7 +71,6 @@ class Gateway(object):
         """
         assert issubclass(Provider, IProvider), 'Provider does not implement IProvider'
         assert isinstance(name, str), 'Provider name must be a string'
-        assert isinstance(config, dict), 'Provider config must be a dict or None'
 
         # Configure
         provider = Provider(self, name, **config)
@@ -137,6 +138,7 @@ class Gateway(object):
             :param message: The message to send
             :rtype: data.OutgoingMessage
             :returns: The sent message with populated fields
+            :raises AssertionError: Wrong provider name used (router or OutgoingMessage)
             :raises KeyError: unknown provider name
             :raises MessageSendError: generic errors
             :raises AuthError: authentication failed
@@ -144,16 +146,19 @@ class Gateway(object):
             :raises CreditError: not enough money on account
         """
         # Which provider to use?
-        provider = self._default_provider  # default
+        provider_name = self._default_provider  # default
         if message.provider is not None:
+            assert message.provider in self._providers, \
+                'Unknown provider specified in OutgoingMessage.provideer: {}'.format(provider_name)
             provider = self.get_provider(message.provider)
         else:
             # Apply routing
             if message.routing_values is not None: # Use the default provider when no routing values are given
                 # Routing values are present
-                provider_name = self.router(*message.routing_values)
-                if provider_name:
-                    provider = self.get_provider(provider_name)
+                provider_name = self.router(message, *message.routing_values) or self._default_provider
+                assert provider_name in self._providers, \
+                    'Routing function returned an unknown provider name: {}'.format(provider_name)
+            provider = self.get_provider(provider_name)
 
         # Set message provider name
         message.provider = provider.name
