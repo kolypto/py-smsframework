@@ -105,7 +105,8 @@ class LoopbackProvider(NullProvider):
             StatusCls = MessageDelivered if subscriber_found else MessageAccepted
 
             # Handle status
-            status = StatusCls(message.msgid, status='OK')
+            status = StatusCls(message.msgid)
+            status.status = 'OK'
             self._receive_status(status)
 
         return message

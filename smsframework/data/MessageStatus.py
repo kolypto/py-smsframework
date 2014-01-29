@@ -1,3 +1,5 @@
+from datetime import datetime
+
 class MessageStatus(object):
     """ Sent Message Status
 
@@ -19,29 +21,33 @@ class MessageStatus(object):
     #: True | False
     expired = False
 
+    #: Has an error occurred? See status then
+    #: True | False
+    error = False
+
+    #: Status code from the provider, if any
+    status_code = None
+
     #: Status text from the provider, if any
     status = None
-
-    #: Error string, if any
-    error = None
 
     #: Provider-dependent info dict, if any
     meta = None
 
-    def __init__(self, msgid, status=None, meta=None, error=None):
-        """ Create the message status struct
+    def __init__(self, msgid, rtime=None, meta=None):
+        """ Create the message status struct.
+
+            Most fields are defined with direct property access, or by using subclasses
 
             :type msgid: str
             :param msgid: Unique message id
-            :type status: str | None
-            :param status: Status text
+            :type rtime: datetime | None
+            :param rtime: Status timestamp, naive, UTC
             :type meta: dict | None
             :param meta: Provider-dependent info
-            :type error: str | None
-            :param error: Error string, if any
         """
         self.msgid = msgid
-        self.status = status
+        self.rtime = rtime or datetime.utcnow()
         self.meta = meta or {}
 
     def __repr__(self):
@@ -54,7 +60,6 @@ class MessageStatus(object):
         )
 
 
-
 class MessageAccepted(MessageStatus):
     """ Accepted for processing
 
@@ -62,6 +67,8 @@ class MessageAccepted(MessageStatus):
         Not all providers report this status.
     """
     accepted = True
+    delivered = False
+    expired = False
 
 
 class MessageDelivered(MessageAccepted):
@@ -69,7 +76,9 @@ class MessageDelivered(MessageAccepted):
 
         The message was accepted and finally delivered
     """
+    accepted = True
     delivered = True
+    expired = False
 
 
 class MessageExpired(MessageAccepted):
@@ -77,8 +86,10 @@ class MessageExpired(MessageAccepted):
 
         The message was accepted, has stayed idle for some time, and finally expired
     """
+    accepted = True
     delivered = False
     expired = True
+
 
 class MessageError(MessageStatus):
     """ Late Error
@@ -87,4 +98,5 @@ class MessageError(MessageStatus):
     """
     accepted = True
     delivered = False
-    error = ''
+    expired = False
+    error = True
