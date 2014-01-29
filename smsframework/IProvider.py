@@ -37,7 +37,7 @@ class IProvider(object):
         """
         raise NotImplementedError('Provider.send not implemented')
 
-    def make_receiver(self):
+    def make_receiver_blueprint(self):
         """ Get a Blueprint for the HTTP receiver
 
             :rtype: flask.Blueprint
