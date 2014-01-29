@@ -177,3 +177,74 @@ class Gateway(object):
         return message
 
     #region
+
+
+    #region Receipt
+
+    def receiver_blueprint_for(self, name):
+        """ Get a Flask blueprint for the named provider that handles incoming messages & status reports
+
+            Note: this requires Flask microframework.
+
+            :rtype: flask.blueprints.Blueprint
+            :returns: Flask Blueprint, fully functional
+            :raises KeyError: provider not found
+            :raises NotImplementedError: Provider does not implement a receiver
+        """
+        # Get the provider & blueprint
+        provider = self.get_provider(name)
+        bp = provider.make_receiver_blueprint()
+
+        # Register a Flask handler that initializes `g.provider`
+        # This is the only way for the blueprint to get the current IProvider instance
+        from flask.globals import g  # local import as the user is not required to use receivers at all
+
+        @bp.before_request
+        def init_g():
+            g.provider = provider
+
+        # Finish
+        return bp
+
+    def receiver_blueprints(self):
+        """ Get Flask blueprints for every provider that supports it
+
+            Note: this requires Flask microframework.
+
+            :rtype: dict
+            :returns: A dict { provider-name: Blueprint }
+        """
+        blueprints = {}
+        for name in self._providers:
+            try:
+                blueprints[name] = self.receiver_blueprint_for(name)
+            except NotImplementedError:
+                pass  # Ignore providers that does not support receivers
+        return blueprints
+
+    def receiver_blueprints_register(self, app, prefix='/'):
+        """ Register all provider receivers on the provided Flask application under '/{prefix}/provider-name'
+
+            Note: this requires Flask microframework.
+
+            :type app: flask.Flask
+            :param app: Flask app to register the blueprints on
+            :type prefix: str
+            :param prefix: URL prefix to hide the receivers under.
+                You likely want some random stuff here so no stranger can simulate incoming messages.
+            :rtype: flask.Flask
+        """
+        # Register
+        for name, bp in self.receiver_blueprints().items():
+            app.register_blueprint(
+                bp,
+                url_prefix='{prefix}{name}'.format(
+                    prefix='/'+prefix.strip('/')+'/' if prefix else '/',
+                    name=name
+                )
+            )
+
+        # Finish
+        return app
+
+    #endregion
