@@ -2,34 +2,37 @@ class ProviderError(RuntimeError):
     """ Generic provider error """
 
 
-class UnsupportedError(ProviderError):
-    """ The requested operation is not supported """
-
-
-class RequestError(ProviderError):
-    """ Request error """
-
-
-class ServerError(ProviderError):
-    """ Server error: sevice unavailable, etc """
+class ConnectionError(ProviderError):
+    """ Connection failed """
 
 
 #region Sending errors
 
-
 class MessageSendError(ProviderError):
-    """ Base for sending errors """
+    """ Base for erorrs reported by the provider """
 
 
-class AuthError(ProviderError):
+class RequestError(MessageSendError):
+    """ Request error: likely, validation errors """
+
+
+class UnsupportedError(MessageSendError):
+    """ The requested operation is not supported """
+
+
+class ServerError(MessageSendError):
+    """ Server error: sevice unavailable, etc """
+
+
+class AuthError(MessageSendError):
     """ Authentication error """
 
 
-class LimitsError(ProviderError):
+class LimitsError(MessageSendError):
     """ Sending limits exceeded """
 
 
-class CreditError(ProviderError):
+class CreditError(MessageSendError):
     """ Not enough money on the account """
 
 
