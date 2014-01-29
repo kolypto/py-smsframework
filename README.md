@@ -45,6 +45,9 @@ Table of Contents
     * <a href="#messagestatus">MessageStatus</a>
     * <a href="#exceptions">Exceptions</a>
 * <a href="#provider-http-receivers">Provider HTTP Receivers</a>
+    * <a href="#gatewayreceiver_blueprint_forname-flaskblueprint">Gateway.receiver_blueprint_for(name): flask.Blueprint</a>
+    * <a href="#gatewayreceiver_blueprintsname-flaskblueprint">Gateway.receiver_blueprints():(name, flask.Blueprint)*</a>
+    * <a href="#gatewayreceiver_blueprints_registerapp-prefixflaskflask">Gateway.receiver_blueprints_register(app, prefix='/'):flask.Flask</a>
 * <a href="#message-routing">Message Routing</a>
 * <a href="#bundled-providers">Bundled Providers</a>
     * <a href="#nullprovider">NullProvider</a>
@@ -70,7 +73,7 @@ SMSframework supports the following bundled providers:
 
 Supported providers list:
 
-* [Clickatell](https://npmjs.org/package/smsframework-clickatell)
+* [Clickatell](https://github.com/kolypto/py-smsframework-clickatell)
 * Expecting more!
 
 Also see the [full list of providers](https://pypi.python.org/pypi?%3Aaction=search&term=smsframework).

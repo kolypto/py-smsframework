@@ -50,6 +50,12 @@ Table of Contents
    -  Exceptions
 
 -  Provider HTTP Receivers
+
+   -  Gateway.receiver\_blueprint\_for(name): flask.Blueprint
+   -  Gateway.receiver\_blueprints():(name, flask.Blueprint)\*
+   -  Gateway.receiver\_blueprints\_register(app,
+      prefix='/'):flask.Flask
+
 -  Message Routing
 -  Bundled Providers
 
@@ -73,7 +79,7 @@ SMSframework supports the following bundled providers:
 
 Supported providers list:
 
--  `Clickatell <https://npmjs.org/package/smsframework-clickatell>`__
+-  `Clickatell <https://github.com/kolypto/py-smsframework-clickatell>`__
 -  Expecting more!
 
 Also see the `full list of
