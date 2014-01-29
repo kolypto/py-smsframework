@@ -62,6 +62,7 @@ class GatewatTest(unittest.TestCase):
         self.assertListEqual(self.provider.get_traffic(), [msg])  # traffic works
         self.assertEqual(len(self.events_log), 2)
         self.assertIsInstance(self.events_log[0], MessageAccepted)  # accepted, but not delivered
+        self.assertSetEqual(self.events_log[0].states, {'accepted'})
         self.assertIs(self.events_log[1], msg)
         self.assertEqual(self.subscriber_log, [])  # no log as there was no subscriber
 
@@ -72,6 +73,7 @@ class GatewatTest(unittest.TestCase):
         self.assertListEqual(self.provider.get_traffic(), [msg])
         self.assertEqual(len(self.events_log), 2)
         self.assertIsInstance(self.events_log[0], MessageDelivered)  # delivered
+        self.assertSetEqual(self.events_log[0].states, {'accepted', 'delivered'})
         self.assertIs(self.events_log[1], msg)
         self.assertEqual(self.subscriber_log, ['1:None:hi!'])
 

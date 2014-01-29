@@ -50,13 +50,31 @@ class MessageStatus(object):
         self.rtime = rtime or datetime.utcnow()
         self.meta = meta or {}
 
+    @property
+    def states(self):
+        """ Get the set of states. Mostly used for pretty printing
+
+            :rtype: set
+            :returns: Set of 'accepted', 'delivered', 'expired', 'error'
+        """
+        ret = set()
+        if self.accepted:
+            ret.add('accepted')
+        if self.delivered:
+            ret.add('delivered')
+        if self.expired:
+            ret.add('expired')
+        if self.error:
+            ret.add('error')
+        return ret
+
     def __repr__(self):
-        return '{cls}({provider!r}, {msgid!r}, status={status!r}, error={error!r})'.format(
+        return '{cls}({provider!r}, {msgid!r}, state={state!r}, status={status!r})'.format(
             cls=self.__class__.__name__,
             provider=self.provider,
             msgid=self.msgid,
-            status=self.status,
-            error=self.error
+            state=self.states,
+            status=self.status
         )
 
 
