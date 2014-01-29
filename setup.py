@@ -18,6 +18,10 @@ setup(
 
     install_requires=[
     ],
+    extras_require={
+        'clickatell': ['smsframework_clickatell >= 0.0.1'],
+        'receiver': ['flask >= 0.10']
+    },
     include_package_data=True,
 
     platforms='any',
