@@ -3,7 +3,7 @@ from setuptools import setup
 setup(
     # http://pythonhosted.org/setuptools/setuptools.html
     name='smsframework',
-    version='0.0.2',
+    version='0.0.2-1',
     author='Mark Vartanyan',
     author_email='kolypto@gmail.com',
 
@@ -13,7 +13,12 @@ setup(
     long_description=open('README.rst').read(),
     keywords=['sms', 'message', 'notification', 'receive', 'send'],
 
-    packages=['smsframework'],
+    packages=[
+        'smsframework',
+        'smsframework.data',
+        'smsframework.lib',
+        'smsframework.providers',
+    ],
     scripts=[],
 
     install_requires=[
