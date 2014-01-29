@@ -1,4 +1,4 @@
-[![Build Status](https://api.travis-ci.org/kolypto/py-smsframework.png?branch=master)](https://travis-ci.org/kolypto/py-miracle)
+[![Build Status](https://api.travis-ci.org/kolypto/py-smsframework.png?branch=master)](https://travis-ci.org/kolypto/py-smsframework)
 
 SMSframework
 ============
@@ -27,6 +27,7 @@ Table of Contents
 =================
 
 * <a href="#supported-providers">Supported Providers</a>
+* <a href="#installation">Installation</a>
 * <a href="#gateway">Gateway</a>
     * <a href="#providers">Providers</a>
         * <a href="#gatewayadd_providername-provider-configiprovider">Gateway.add_provider(name, Provider, **config):IProvider</a>
@@ -73,6 +74,26 @@ Supported providers list:
 * Expecting more!
 
 Also see the [full list of providers](https://pypi.python.org/pypi?%3Aaction=search&term=smsframework).
+
+
+
+
+
+
+Installation
+============
+
+Install from pypi:
+
+    $ pip install smsframework
+
+Install with some additional providers:
+
+    $ pip install smsframework[clickatell]
+
+To receive SMS messages, you need to ensure that [Flask microframework](http://flask.pocoo.org) is also installed:
+
+    $ pip install smsframework[clickatell,receiver]
 
 
 
@@ -152,11 +173,16 @@ Arguments:
 
 Exceptions:
 
-* `AssertionError`: wrong provider name encountered (returned by the router, or provided to OutgoingMessage)
+* `AssertionError`: Wrong provider name encountered (returned by the router, or provided to OutgoingMessage)
+* `ProviderError`: Generic provider error
+* `ConnectionError`: Connection failed
 * `MessageSendError`: Generic sending error
-* `AuthError`: provider authentication failed
-* `LimitsError`: sending limits exceeded
-* `CreditError`: not enough money on the account
+* `RequestError`: Request error: likely, validation errors
+* `UnsupportedError`: The requested operation is not supported
+* `ServerError`: Server error: sevice unavailable, etc
+* `AuthError`: Provider authentication failed
+* `LimitsError`: Sending limits exceeded
+* `CreditError`: Not enough money on the account
 
 Returns: the same `OutgoingMessage`, with some additional fields populated: `msgid`, `meta`, ..
 
@@ -286,7 +312,73 @@ Source: [smsframework/exc.py](smsframework/exc.py).
 
 Provider HTTP Receivers
 =======================
-TODO
+Note: the whole receiver feature is optional. Skip this section if you only need to send messages.
+
+In order to receive messages, most providers need an HTTP handler.
+
+To get standardized, by default providers use [Flask microframework](http://flask.pocoo.org) for this:
+a provider defines a [Blueprint](http://flask.pocoo.org/docs/blueprints/) which can be registered on your Flask
+application as the receiver endpoint.
+
+The resources are provider-dependent: refer to the provider documentation for the details.
+The recommended approach is to use `/im` for incoming messages, and `/status` for status reports.
+
+## Gateway.receiver_blueprint_for(name): flask.Blueprint
+Get a Flask blueprint for the named provider that handles incoming messages & status reports.
+
+Returns: [flask.Blueprint](http://flask.pocoo.org/docs/blueprints/)
+
+Errors:
+
+* `KeyError`: provider not found
+* `NotImplementedError`: Provider does not implement a receiver
+
+This method is mostly internal, as the following ones are usually much more convenient.
+
+## Gateway.receiver_blueprints():(name, flask.Blueprint)*
+Get Flask blueprints for every provider that supports it.
+
+The method is a generator that yields `(name, blueprint)` tuples,
+where `blueprint` is `flask.Blueprint` for provider named `name`.
+
+Use this method to register your receivers manually:
+
+```python
+from flask import Flask
+
+app = Flask()
+
+for name, bp in gateway.receiver_blueprints():
+    app.register_blueprint(bp, url_prefix='/sms/'+name)
+```
+
+With the example above, each receivers will be registered under */name* prefix.
+
+Assuming the *'clickatell'* provider defines */im* and */status* receivers and your app is running on *http://localhost:5000/*,
+you will configure the SMS service to send messages to:
+
+* http://localhost:5000/sms/clickatell/im
+* http://localhost:5000/sms/clickatell/status
+
+## Gateway.receiver_blueprints_register(app, prefix='/'):flask.Flask
+Register all provider receivers on the provided Flask application under '/{prefix}/provider-name'.
+
+This is a convenience method to register all blueprints at once using the following recommended rules:
+
+* If `prefix` is provided, all blueprints are registered under this prefix
+* Provider receivers are registered under '/provider-name' path
+
+It's adviced to mount the receivers under some difficult-to-guess prefix: otherwise, attackers can send
+fake messages into your system!
+
+Secure example:
+
+```js
+gateway.receiver_blueprints_register(app, '/24fb0d6963f/');
+```
+
+NOTE: Other mechanisms, such as basic authentication, are not typically useful as some services do not support that.
+
 
 
 
