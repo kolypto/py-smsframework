@@ -470,7 +470,7 @@ Logs the outgoing messages to a python logger provided as the config option.
 
 Configuration:
 
-* `logger: logging.Logger`: The logger to use
+* `logger: logging.Logger`: The logger to use. Default logger is used if nothing provided.
 
 Sending: does nothing, increments message.msgid, prints the message to the log
 

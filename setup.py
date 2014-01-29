@@ -3,7 +3,7 @@ from setuptools import setup
 setup(
     # http://pythonhosted.org/setuptools/setuptools.html
     name='smsframework',
-    version='0.0.3',
+    version='0.0.3-1',
     author='Mark Vartanyan',
     author_email='kolypto@gmail.com',
 

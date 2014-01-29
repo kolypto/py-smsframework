@@ -1,3 +1,5 @@
+import logging
+
 from .null import NullProvider
 
 
@@ -15,14 +17,14 @@ class LogProvider(NullProvider):
         Status: Not implemented
     """
 
-    def __init__(self, gateway, name, logger):
+    def __init__(self, gateway, name, logger=None):
         """ Configure provider
 
-            :type logger: logging.Logger
-            :param logger: The logger to use
+            :type logger: logging.Logger | None
+            :param logger: The logger to use. Default logger is used if nothing provided
         """
         super(NullProvider, self).__init__(gateway, name)
-        self.logger = logger
+        self.logger = logger or logging.getLogger(__name__)
 
     def send(self, message):
         # Log
