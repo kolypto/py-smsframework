@@ -80,6 +80,7 @@ SMSframework supports the following bundled providers:
 Supported providers list:
 
 -  `Clickatell <https://github.com/kolypto/py-smsframework-clickatell>`__
+-  `Vianett <https://github.com/kolypto/py-smsframework-vianett>`__
 -  Expecting more!
 
 Also see the `full list of
@@ -132,10 +133,8 @@ provider.
 Each provider reside in an individual package ``smsframework_*``. You'll
 probably want to install `some of these <#supported-providers>`__ first.
 
-Gateway.add\_provider(name, Provider, \*\*config):IProvider
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Register a provider on the gateway
+Gateway.add\_provider(name, Provider, \*\*config):IProvider Register a provider on the gateway
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Arguments:
 
@@ -236,7 +235,7 @@ the ``=`` operator instead of ``+=``), you'll end up having a single
 hook, but smsframework will continue to work normally: thanks to the
 implementation.
 
-See smsframework/lib/events.py.
+See `smsframework/lib/events.py <smsframework/lib/events.py>`__.
 
 Gateway.onSend
 ~~~~~~~~~~~~~~
@@ -324,26 +323,29 @@ IncomingMessage
 
 A messsage received from the provider.
 
-Source: smsframework/data/IncomingMessage.py.
+Source:
+`smsframework/data/IncomingMessage.py <smsframework/data/IncomingMessage.py>`__.
 
 OutgoingMessage
 ---------------
 
 A message being sent.
 
-Source: smsframework/data/OutgoingMessage.py.
+Source:
+`smsframework/data/OutgoingMessage.py <smsframework/data/OutgoingMessage.py>`__.
 
 MessageStatus
 -------------
 
 A status report received from the provider.
 
-Source: smsframework/data/MessageStatus.py.
+Source:
+`smsframework/data/MessageStatus.py <smsframework/data/MessageStatus.py>`__.
 
 Exceptions
 ----------
 
-Source: smsframework/exc.py.
+Source: `smsframework/exc.py <smsframework/exc.py>`__.
 
 Provider HTTP Receivers
 =======================
@@ -378,10 +380,8 @@ Errors:
 This method is mostly internal, as the following ones are usually much
 more convenient.
 
-Gateway.receiver\_blueprints():(name, flask.Blueprint)\*
---------------------------------------------------------
-
-Get Flask blueprints for every provider that supports it.
+Gateway.receiver\_blueprints():(name, flask.Blueprint)\* Get Flask blueprints for every provider that supports it.
+------------------------------------------------------------------------------------------------------------------
 
 The method is a generator that yields ``(name, blueprint)`` tuples,
 where ``blueprint`` is ``flask.Blueprint`` for provider named ``name``.
@@ -491,7 +491,8 @@ no additional packages.
 NullProvider
 ------------
 
-Source: smsframework/providers/null.py
+Source:
+`smsframework/providers/null.py <smsframework/providers/null.py>`__
 
 The ``'null'`` provider just ignores all outgoing messages.
 
@@ -512,14 +513,16 @@ Status: Not implemented
 LogProvider
 -----------
 
-Source: smsframework/providers/log.py
+Source:
+`smsframework/providers/log.py <smsframework/providers/log.py>`__
 
 Logs the outgoing messages to a python logger provided as the config
 option.
 
 Configuration:
 
--  ``logger: logging.Logger``: The logger to use
+-  ``logger: logging.Logger``: The logger to use. Default logger is used
+   if nothing provided.
 
 Sending: does nothing, increments message.msgid, prints the message to
 the log
@@ -540,7 +543,8 @@ Example:
 LoopbackProvider
 ----------------
 
-Source: smsframework/providers/loopback.py
+Source:
+`smsframework/providers/loopback.py <smsframework/providers/loopback.py>`__
 
 The ``'loopback'`` provider is used as a dummy for testing purposes.
 
