@@ -3,7 +3,7 @@ from setuptools import setup
 setup(
     # http://pythonhosted.org/setuptools/setuptools.html
     name='smsframework',
-    version='0.0.3-1',
+    version='0.0.3-2',
     author='Mark Vartanyan',
     author_email='kolypto@gmail.com',
 
@@ -25,6 +25,7 @@ setup(
     ],
     extras_require={
         'clickatell': ['smsframework-clickatell >= 0.0.1'],
+        'vianett': ['smsframework-vianett >= 0.0.1'],
         'receiver': ['flask >= 0.10']
     },
     include_package_data=True,

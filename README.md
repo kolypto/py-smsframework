@@ -74,6 +74,7 @@ SMSframework supports the following bundled providers:
 Supported providers list:
 
 * [Clickatell](https://github.com/kolypto/py-smsframework-clickatell)
+* [Vianett](https://github.com/kolypto/py-smsframework-vianett)
 * Expecting more!
 
 Also see the [full list of providers](https://pypi.python.org/pypi?%3Aaction=search&term=smsframework).
