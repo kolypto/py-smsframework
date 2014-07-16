@@ -1,6 +1,6 @@
 #! /usr/bin/env python
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     # http://pythonhosted.org/setuptools/setuptools.html
@@ -15,12 +15,7 @@ setup(
     long_description=open('README.rst').read(),
     keywords=['sms', 'message', 'notification', 'receive', 'send'],
 
-    packages=[
-        'smsframework',
-        'smsframework.data',
-        'smsframework.lib',
-        'smsframework.providers',
-    ],
+    packages=find_packages(),
     scripts=[],
 
     install_requires=[
