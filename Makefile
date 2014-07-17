@@ -8,7 +8,7 @@ test:
 test3:
 	@nosetests3 tests/
 # Package
-check:
+check: build
 	@./setup.py check
 clean:
 	@rm -rf build/ dist/ *.egg-info/ README.rst

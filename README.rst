@@ -623,5 +623,93 @@ Arguments:
 
     gateway.send('+1', 'obey me')
 
+ForwardServerProvider, ForwardClientProvider
+--------------------------------------------
+
+Source:
+
+A pair of providers to bind two application instances together:
+
+-  ``ForwardClientProvider`` can be used to send and receive messages
+   using a remote server as a proxy
+-  ``ForwardServerProvider`` is the remote server which:
+
+   -  Gets outgoing messages from clients and loops them back to the
+      gateway so they're sent with another provider
+   -  Hooks into the gateway and passes all incoming messages and
+      statuses to the clients
+
+Two providers are bound together using two pairs of receivers. You are
+not required to care about this :)
+
+Remote errors will be transparently re-raised on the local host.
+
+ForwardClientProvider
+~~~~~~~~~~~~~~~~~~~~~
+
+Example setup:
+
+.. code:: python
+
+    from smsframework.providers import ForwardClientProvider
+
+    gw.add_provider('fwd', ForwardClientProvider, server_url='http://sms.example.com/sms/fwd')
+
+Configuration:
+
+-  ``server_url``: URL to ForwardServerProvider installed on a remote
+   host. All outgoing messages will be sent through it instead.
+
+ForwardServerProvider
+~~~~~~~~~~~~~~~~~~~~~
+
+Example setup:
+
+.. code:: python
+
+    from smsframework.providers import ForwardServerProvider
+
+    gw.add_provider(....)  # Default provider
+    gw.add_provider('fwd', ForwardServerProvider, clients=[
+        'http://a.example.com/sms/fwd',
+        'http://b.example.com/sms/fwd',
+    ])
+
+Configuration:
+
+-  ``clients``: List of URLs to ForwardClientProvider installed on
+   remote hosts. All incoming messages and statuses will be forwarded to
+   all specified clients.
+
+Routing Server
+^^^^^^^^^^^^^^
+
+If you want to forward only specific messages, you need to override the
+``choose_clients`` method: given an object, which is either
+```OutgoingMessage`` <#outgoingmessage>`__ or
+```MessageStatus`` <#messagestatus>`__, it should return a list of
+client URLs the object should be forwarded to.
+
+Example: send all messages to "a.example.com", and status reports to
+"b.example.com":
+
+.. code:: python
+
+    from smsframework import ForwardServerProvider
+    from smsframework.data import OutgoingMessage, MessageStatus
+
+    class RoutingProvider(ForwardServerProvider):
+        def choose_clients(self, obj):
+            if isinstance(obj, OutgoingMessage):
+                return [ self.clients[0] ]
+            else:
+                return [ self.clients[1] ]
+                
+    gw.add_provider(....)  # Default provider
+    gw.add_provider('fwd', RoutingProvider, clients=[
+        'http://a.example.com/sms/fwd',
+        'http://b.example.com/sms/fwd',
+    ])
+
 .. |Build Status| image:: https://api.travis-ci.org/kolypto/py-smsframework.png?branch=master
    :target: https://travis-ci.org/kolypto/py-smsframework
