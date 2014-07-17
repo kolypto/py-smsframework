@@ -6,7 +6,7 @@ from .provider import jsonex_loads, jsonex_api
 bp = Blueprint('smsframework-forward-client', __name__, url_prefix='/')
 
 
-@bp.route('/im')
+@bp.route('/im', methods=['POST'])
 @jsonex_api
 def im():
     """ Incoming message handler: forwarded by ForwardServerProvider """
@@ -15,7 +15,7 @@ def im():
     return {'message': message}
 
 
-@bp.route('/status')
+@bp.route('/status', methods=['POST'])
 @jsonex_api
 def status():
     """ Incoming status handler: forwarded by ForwardServerProvider """

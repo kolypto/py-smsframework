@@ -25,6 +25,10 @@ setup(
         'vianett': ['smsframework-vianett >= 0.0.1'],
         'receiver': ['flask >= 0.10']
     },
+    tests_require=[
+        'nose',
+        'flask',
+    ],
     include_package_data=True,
 
     platforms='any',

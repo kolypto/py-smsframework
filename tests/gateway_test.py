@@ -5,7 +5,7 @@ from smsframework.providers import NullProvider
 from smsframework import OutgoingMessage, IncomingMessage, MessageStatus
 
 
-class GatewatTest(unittest.TestCase):
+class GatewayTest(unittest.TestCase):
     """ Test Gateway """
 
     def setUp(self):

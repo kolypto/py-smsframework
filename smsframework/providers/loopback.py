@@ -15,7 +15,7 @@ class LoopbackProvider(NullProvider):
 
         Receipt: simulation with a method
 
-        Status: always reports success
+        Status: always reports success (if was requested for the message)
     """
 
     def __init__(self, gateway, name):

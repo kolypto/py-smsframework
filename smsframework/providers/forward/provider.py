@@ -1,8 +1,11 @@
 import json, urllib2
 from functools import wraps
+import logging
 
 from smsframework import IProvider, exc
 from .jsonex import JsonExEncoder, JsonExDecoder
+
+logger = logging.getLogger(__name__)
 
 
 #region JsonEx
@@ -52,9 +55,11 @@ def jsonex_api(f):
             code, res = e.code, {'error': e}
         except Exception as e:
             code, res = 500, {'error': e}
+            logger.exception('Method error')
 
         # Response
         response = make_response(jsonex_dumps(res), code)
+        response.headers['Content-Type'] = 'application/json'
         return response
     return wrapper
 
@@ -67,11 +72,29 @@ def jsonex_request(url, data):
     :type data: dict
     :return: Response
     :rtype: dict
+    :raises exc.ConnectionError: Connection error
+    :raises exc.ServerError: Remote server error (unknown)
+    :raises exc.ProviderError: any errors reported by the remote
     """
-    req = urllib2.Request(url, headers={'Content-type', 'application/json'})
-    response = urllib2.urlopen(req, jsonex_dumps(data))
-    res_str = response.read()
-    return jsonex_loads(res_str)
+    # Request
+    try:
+        req = urllib2.Request(url, headers={'Content-Type': 'application/json'})
+        response = urllib2.urlopen(req, jsonex_dumps(data))
+        res_str = response.read()
+        res = jsonex_loads(res_str)
+    except urllib2.HTTPError as e:
+        if 'Content-Type' in e.headers and e.headers['Content-Type'] == 'application/json':
+            res = jsonex_loads(e.read())
+        else:
+            raise exc.ServerError('Server at "{}" failed: {}'.format(url, e.message))
+    except urllib2.URLError as e:
+        raise exc.ConnectionError('Connection to "{}" failed: {}'.format(url, e.message))
+
+    # Errors?
+    if 'error' in res:  # Exception object
+        raise res['error']
+
+    return res
 
 #endregion
 
@@ -98,11 +121,15 @@ class ForwardClientProvider(IProvider):
         :type message: smsframework.data.OutgoingMessage
         :rtype: smsframework.data.OutgoingMessage
         :raise Exception: any exception reported by the other side
+        :raise urllib2.URLError: Connection error
         """
-        res = jsonex_request(self.server_url, {'message': message})
-        if res['error']:  # Exception object
-            raise res['error']
-        return res['message']  # OutgoingMessage object
+        res = jsonex_request(self.server_url + '/im', {'message': message})
+        msg = res['message']  # OutgoingMessage object
+
+        # Replace properties in the original object (so it's the same object, like with other providers)
+        for k, v in msg.__dict__.items():
+            setattr(message, k, v)
+        return message
 
     def make_receiver_blueprint(self):
         """ Create the receiver so server can send messages to us
@@ -110,6 +137,16 @@ class ForwardClientProvider(IProvider):
         """
         from .receiver_client import bp
         return bp
+
+    def _receive_message(self, message):
+        # Overriden method to preserve the original provider name
+        self.gateway.onReceive(message)
+        return message
+
+    def _receive_status(self, status):
+        # Overriden method to preserve the original provider name
+        self.gateway.onStatus(status)
+        return status
 
 
 class ForwardServerProvider(IProvider):
@@ -156,10 +193,6 @@ class ForwardServerProvider(IProvider):
         # Forward
         url, name = ('/im', 'message') if isinstance(obj, IncomingMessage) else ('/status', 'status')
         res = jsonex_request(client + url, {name: obj})
-
-        # Finish
-        if 'error' in res:
-            raise res['error']
         return res[name]
 
     def forward(self, obj):
@@ -180,6 +213,7 @@ class ForwardServerProvider(IProvider):
         :type message: data.OutgoingMessage
         :rtype: data.OutgoingMessage
         """
+        message.provider = None  # Make sure that no provider was set by the Client
         return self.gateway.send(message)
 
     def make_receiver_blueprint(self):

@@ -5,7 +5,7 @@ from smsframework.providers import LoopbackProvider
 from smsframework import OutgoingMessage, IncomingMessage, MessageAccepted, MessageDelivered
 
 
-class GatewatTest(unittest.TestCase):
+class LoopbackProviderTest(unittest.TestCase):
     """ Test LoopbackProvider """
 
     def setUp(self):
