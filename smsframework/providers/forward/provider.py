@@ -175,7 +175,7 @@ class ForwardServerProvider(IProvider):
         Override to have custom routing. Default: send to all clients
 
         :param obj: The object to be forwarded
-        :type obj: smsframework.data.OutgoingMessage|smsframework.data.MessageStatus
+        :type obj: smsframework.data.IncomingMessage|smsframework.data.MessageStatus
         :return: List of client URLs to forward the message to
         :rtype: list[str]
         """
@@ -184,13 +184,10 @@ class ForwardServerProvider(IProvider):
     def _forward_object_to_client(self, client, obj):
         """ Forward an object to client
         :type client: str
-        :type obj: smsframework.data.OutgoingMessage|smsframework.data.MessageStatus
-        :rtype: smsframework.data.OutgoingMessage|smsframework.data.MessageStatus
+        :type obj: smsframework.data.IncomingMessage|smsframework.data.MessageStatus
+        :rtype: smsframework.data.IncomingMessage|smsframework.data.MessageStatus
         :raise Exception: any exception reported by the other side
         """
-        assert isinstance(obj, (IncomingMessage, MessageStatus)), 'Tried to forward an object of an unsupported type: {}'.format(obj)
-
-        # Forward
         url, name = ('/im', 'message') if isinstance(obj, IncomingMessage) else ('/status', 'status')
         res = jsonex_request(client + url, {name: obj})
         return res[name]
@@ -199,8 +196,9 @@ class ForwardServerProvider(IProvider):
         """ Forward an object to clients.
 
         :param obj: The object to be forwarded
-        :type obj: smsframework.data.OutgoingMessage|smsframework.data.MessageStatus
+        :type obj: smsframework.data.IncomingMessage|smsframework.data.MessageStatus
         """
+        assert isinstance(obj, (IncomingMessage, MessageStatus)), 'Tried to forward an object of an unsupported type: {}'.format(obj)
         clients = self.choose_clients(obj)
 
         # TODO: parallelize with threads!

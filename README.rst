@@ -67,6 +67,13 @@ Table of Contents
       -  LoopbackProvider.received(src, body):IncomingMessage
       -  LoopbackProvider.subscribe(number, callback):IProvider
 
+   -  ForwardServerProvider, ForwardClientProvider
+
+      -  ForwardClientProvider
+      -  ForwardServerProvider
+
+         -  Routing Server
+
 Supported Providers
 ===================
 
@@ -627,6 +634,7 @@ ForwardServerProvider, ForwardClientProvider
 --------------------------------------------
 
 Source:
+`smsframework/providers/forward/provider.py <smsframework/providers/forward/provider.py>`__
 
 A pair of providers to bind two application instances together:
 
@@ -653,7 +661,8 @@ Example setup:
 
     from smsframework.providers import ForwardClientProvider
 
-    gw.add_provider('fwd', ForwardClientProvider, server_url='http://sms.example.com/sms/fwd')
+    gw.add_provider('fwd', ForwardClientProvider, 
+                    server_url='http://sms.example.com/sms/fwd')
 
 Configuration:
 
@@ -686,7 +695,7 @@ Routing Server
 
 If you want to forward only specific messages, you need to override the
 ``choose_clients`` method: given an object, which is either
-```OutgoingMessage`` <#outgoingmessage>`__ or
+```IncomingMessage`` <#incomingmessage>`__ or
 ```MessageStatus`` <#messagestatus>`__, it should return a list of
 client URLs the object should be forwarded to.
 
