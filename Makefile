@@ -4,7 +4,7 @@ all:
 
 # Run tests
 test:
-	@nosetests tests/
+	@./setup.py test
 test3:
 	@nosetests3 tests/
 # Package

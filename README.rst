@@ -652,6 +652,12 @@ not required to care about this :)
 
 Remote errors will be transparently re-raised on the local host.
 
+To support message receipt, include the necessary dependencies:
+
+::
+
+    pip install smsframework[receiver,async]
+
 ForwardClientProvider
 ~~~~~~~~~~~~~~~~~~~~~
 
@@ -719,6 +725,18 @@ Example: send all messages to "a.example.com", and status reports to
         'http://a.example.com/sms/fwd',
         'http://b.example.com/sms/fwd',
     ])
+
+Async
+^^^^^
+
+If your Server is going to forward messages to multiple clients
+simultaneously, you will probably want this to happen in parallel.
+
+Just install the ``asynctools`` dependency:
+
+::
+
+    pip install smsframework[receiver,async]
 
 .. |Build Status| image:: https://api.travis-ci.org/kolypto/py-smsframework.png?branch=master
    :target: https://travis-ci.org/kolypto/py-smsframework
