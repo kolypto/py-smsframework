@@ -28,8 +28,8 @@ setup(
     },
     tests_require=[
         'nose',
-        '.[receiver]',
-        '.[async]'
+        'flask',
+        'asynctools'
     ],
     test_suite='nose.collector',
     include_package_data=True,
