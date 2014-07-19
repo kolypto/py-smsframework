@@ -45,12 +45,12 @@ class ForwardProviderTest(unittest.TestCase):
 
         # Init: client gateway
         self.gw_client = Gateway()
-        self.gw_client.add_provider('fwd', ForwardClientProvider, server_url='http://localhost:5001/sms/fwd')
+        self.gw_client.add_provider('fwd', ForwardClientProvider, server_url='http://a:b@localhost:5001/sms/fwd')
 
         # Init: server gateway
         self.gw_server = Gateway()
         self.gw_server.add_provider('lo', LoopbackProvider)
-        self.gw_server.add_provider('fwd', ForwardServerProvider, clients=['http://localhost:5000/sms/fwd'])
+        self.gw_server.add_provider('fwd', ForwardServerProvider, clients=['http://a:b@localhost:5000/sms/fwd'])
         self.lo = self.gw_server.get_provider('lo')
         ' :type: LoopbackProvider '
 

@@ -738,5 +738,16 @@ Just install the ``asynctools`` dependency:
 
     pip install smsframework[receiver,async]
 
+Authentication
+^^^^^^^^^^^^^^
+
+Both Client and Server support HTTP basic authentication in URLs:
+
+::
+
+    http://user:password@a.example.com/sms/fwd
+
+For requests. Server-side authentication is your responsibility ;)
+
 .. |Build Status| image:: https://api.travis-ci.org/kolypto/py-smsframework.png?branch=master
    :target: https://travis-ci.org/kolypto/py-smsframework

@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 setup(
     # http://pythonhosted.org/setuptools/setuptools.html
     name='smsframework',
-    version='0.0.5-1',
+    version='0.0.6-0',
     author='Mark Vartanyan',
     author_email='kolypto@gmail.com',
 

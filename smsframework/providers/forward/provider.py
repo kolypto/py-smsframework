@@ -1,4 +1,4 @@
-import json, urllib2
+import json, urllib2, urlparse, base64
 from functools import wraps
 import logging
 
@@ -79,9 +79,18 @@ def jsonex_request(url, data):
     :raises exc.ServerError: Remote server error (unknown)
     :raises exc.ProviderError: any errors reported by the remote
     """
+    # Authentication?
+    headers = {'Content-Type': 'application/json'}
+    p = urlparse.urlsplit(url, 'http')
+    if p.username and p.password:
+        # Prepare header
+        headers['Authorization'] = b'Basic ' + base64.b64encode(p.username + b':' + p.password)
+        # Remove authentication info since urllib2.Request() does not understand it
+        url = urlparse.urlunsplit((p.scheme, p.netloc.split('@', 1)[1], p.path, p.query, p.fragment))
+
     # Request
     try:
-        req = urllib2.Request(url, headers={'Content-Type': 'application/json'})
+        req = urllib2.Request(url, headers)
         response = urllib2.urlopen(req, jsonex_dumps(data))
         res_str = response.read()
         res = jsonex_loads(res_str)
@@ -89,9 +98,9 @@ def jsonex_request(url, data):
         if 'Content-Type' in e.headers and e.headers['Content-Type'] == 'application/json':
             res = jsonex_loads(e.read())
         else:
-            raise exc.ServerError('Server at "{}" failed: {}'.format(url, e.message))
+            raise exc.ServerError('Server at "{}" failed: {}'.format(url, e))
     except urllib2.URLError as e:
-        raise exc.ConnectionError('Connection to "{}" failed: {}'.format(url, e.message))
+        raise exc.ConnectionError('Connection to "{}" failed: {}'.format(url, e))
 
     # Errors?
     if 'error' in res:  # Exception object
