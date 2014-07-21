@@ -67,7 +67,36 @@ def jsonex_api(f):
     return wrapper
 
 
-def jsonex_request(url, data):
+def _parse_authentication(url):
+    """ Parse authentication data from the URL and put it in the `headers` dict. With caching behavior
+    :param url: URL
+    :type url: str
+    :return: (URL without authentication info, headers dict)
+    :rtype: str, dict
+    """
+    u = url
+    h = {}  # New headers
+
+    # Cache?
+    if url in _parse_authentication._memoize:
+        u, h = _parse_authentication._memoize[url]
+    else:
+        # Parse
+        p = urlparse.urlsplit(url, 'http')
+        if p.username and p.password:
+            # Prepare header
+            h['Authorization'] = b'Basic ' + base64.b64encode(p.username + b':' + p.password)
+            # Remove authentication info since urllib2.Request() does not understand it
+            u = urlparse.urlunsplit((p.scheme, p.netloc.split('@', 1)[1], p.path, p.query, p.fragment))
+        # Cache
+        _parse_authentication._memoize[url] = (u, h)
+
+    # Finish
+    return u, h
+_parse_authentication._memoize = {}
+
+
+def jsonex_request(url, data, headers=None):
     """ Make a request with JsonEx
     :param url: URL
     :type url: str
@@ -80,17 +109,12 @@ def jsonex_request(url, data):
     :raises exc.ProviderError: any errors reported by the remote
     """
     # Authentication?
-    headers = {'Content-Type': 'application/json'}
-    p = urlparse.urlsplit(url, 'http')
-    if p.username and p.password:
-        # Prepare header
-        headers['Authorization'] = b'Basic ' + base64.b64encode(p.username + b':' + p.password)
-        # Remove authentication info since urllib2.Request() does not understand it
-        url = urlparse.urlunsplit((p.scheme, p.netloc.split('@', 1)[1], p.path, p.query, p.fragment))
+    url, headers = _parse_authentication(url)
+    headers['Content-Type'] = 'application/json'
 
     # Request
     try:
-        req = urllib2.Request(url, headers)
+        req = urllib2.Request(url, headers=headers)
         response = urllib2.urlopen(req, jsonex_dumps(data))
         res_str = response.read()
         res = jsonex_loads(res_str)
