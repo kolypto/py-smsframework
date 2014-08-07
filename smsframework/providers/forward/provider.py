@@ -148,7 +148,7 @@ class ForwardClientProvider(IProvider):
             The URL should point to ForwardServerProvider registered on the server
         :type server_url: str
         """
-        self.server_url = server_url
+        self.server_url = server_url.rstrip('/') + '/'  # ensure trailing slash
         super(ForwardClientProvider, self).__init__(gateway, name)
 
     def send(self, message):
@@ -159,7 +159,7 @@ class ForwardClientProvider(IProvider):
         :raise Exception: any exception reported by the other side
         :raise urllib2.URLError: Connection error
         """
-        res = jsonex_request(self.server_url + '/im', {'message': message})
+        res = jsonex_request(self.server_url + '/im'.lstrip('/'), {'message': message})
         msg = res['message']  # OutgoingMessage object
 
         # Replace properties in the original object (so it's the same object, like with other providers)
@@ -225,7 +225,7 @@ class ForwardServerProvider(IProvider):
         :raise Exception: any exception reported by the other side
         """
         url, name = ('/im', 'message') if isinstance(obj, IncomingMessage) else ('/status', 'status')
-        res = jsonex_request(client + url, {name: obj})
+        res = jsonex_request(client.rstrip('/') + '/' + url.lstrip('/'), {name: obj})
         return res[name]
 
     def forward(self, obj):
