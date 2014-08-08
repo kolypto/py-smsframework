@@ -23,14 +23,12 @@ class LogProvider(NullProvider):
             :type logger: logging.Logger | None
             :param logger: The logger to use. Default logger is used if nothing provided
         """
-        super(NullProvider, self).__init__(gateway, name)
+        super(LogProvider, self).__init__(gateway, name)
         self.logger = logger or logging.getLogger(__name__)
 
     def send(self, message):
         # Log
-        self.logger.info('Sent SMS to {to}: {body}',
-                         to=message.to,
-                         body=message.body)
+        self.logger.info('Sent SMS to {message.dst}: {message.body}'.format(message=message))
 
         # Finish
         return super(LogProvider, self).send(message)

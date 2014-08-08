@@ -5,7 +5,7 @@ from setuptools import setup, find_packages
 setup(
     # http://pythonhosted.org/setuptools/setuptools.html
     name='smsframework',
-    version='0.0.6-2',
+    version='0.0.7-0',
     author='Mark Vartanyan',
     author_email='kolypto@gmail.com',
 
@@ -25,7 +25,7 @@ setup(
         'vianett': ['smsframework-vianett >= 0.0.1'],
         'receiver': ['flask >= 0.10'],
         'async': ['asynctools >= 0.1.2'],
-        '_tests': ['nose', 'flask', 'asynctools']
+        '_dev': ['nose', 'flask', 'asynctools', 'testfixtures']
     },
     test_suite='nose.collector',
     include_package_data=True,
