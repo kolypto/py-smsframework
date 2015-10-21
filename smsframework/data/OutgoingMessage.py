@@ -32,7 +32,7 @@ class OutgoingMessage(object):
                 If not specified explicitly, the message will be routed using the routing values:
                 see :meth:`OutgoingMessage.route`
         """
-        self.src = digits_only(src) if src else None
+        self.src = src
         self.dst = digits_only(dst)
         self.body = body
 
