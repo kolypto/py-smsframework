@@ -60,7 +60,7 @@ class JsonExDecoder(JSONDecoder):
 
             # Special handling for dates
             if cls == 'datetime':
-                return datetime.strptime(props, '%Y-%m-%dT%H:%M:%S.%f')
+                return datetime.strptime(props, '%Y-%m-%dT%H:%M:%S')
             elif cls == 'date':
                 return datetime.strptime(props, '%Y-%m-%d').date()
             elif cls == 'time':
