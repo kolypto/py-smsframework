@@ -1,4 +1,5 @@
 #! /usr/bin/env python
+""" Bi-directional SMS gateway with pluggable providers """
 
 from setuptools import setup, find_packages
 
@@ -10,15 +11,18 @@ setup(
     author_email='kolypto@gmail.com',
 
     url='https://github.com/kolypto/py-smsframework',
-    license='MIT',
-    description="Bi-directional SMS gateway with pluggable providers",
-    long_description=open('README.rst').read(),
+    license='BSD',
+    description=__doc__,
+    long_description=open('README.md').read(),
+    long_description_content_type='text/markdown',
     keywords=['sms', 'message', 'notification', 'receive', 'send'],
 
     packages=find_packages(),
     scripts=[],
+    entry_points={},
 
     install_requires=[
+        'future',
     ],
     extras_require={
         'clickatell': ['smsframework-clickatell >= 0.0.1'],
@@ -27,8 +31,8 @@ setup(
         'async': ['asynctools >= 0.1.2'],
         '_dev': ['wheel', 'nose', 'flask', 'asynctools', 'testfixtures']
     },
-    test_suite='nose.collector',
     include_package_data=True,
+    test_suite='nose.collector',
 
     platforms='any',
     classifiers=[
@@ -36,8 +40,9 @@ setup(
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'Natural Language :: English',
+        'Operating System :: OS Independent',
         'Programming Language :: Python :: 2',
         'Programming Language :: Python :: 3',
-        'Operating System :: OS Independent'
+        'Topic :: Software Development :: Libraries :: Python Modules',
     ],
 )
