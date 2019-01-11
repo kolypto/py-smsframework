@@ -2,3 +2,6 @@ wheel
 nose
 exdoc
 j2cli
+flask
+asynctools
+testfixtures

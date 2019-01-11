@@ -1,6 +1,14 @@
-import json, urllib2, urlparse, base64
+import json, base64
 from functools import wraps
 import logging
+
+
+try: # Py3
+    from urllib.request import urlopen, Request, HTTPError, URLError
+    from urllib.parse import urlparse
+except ImportError: # Py2
+    from urllib2 import urlopen, Request, HTTPError, URLError
+    import urlparse
 
 from smsframework import IProvider, exc
 from .jsonex import JsonExEncoder, JsonExDecoder
