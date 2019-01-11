@@ -1,4 +1,5 @@
-|Build Status|
+`Build Status <https://travis-ci.org/kolypto/py-smsframework>`__
+`Pythons <.travis.yml>`__
 
 SMSframework
 ============
@@ -22,15 +23,16 @@ Key features:
 Table of Contents
 =================
 
+-  Tutorial
 -  Supported Providers
 -  Installation
 -  Gateway
 
    -  Providers
 
-      -  Gateway.add\_provider(name, Provider, \*\*config):IProvider
-      -  Gateway.default\_provider
-      -  Gateway.get\_provider(name):IProvider
+      -  Gateway.add_provider(name, Provider, \**config):IProvider
+      -  Gateway.default_provider
+      -  Gateway.get_provider(name):IProvider
 
    -  Sending Messages
 
@@ -51,10 +53,9 @@ Table of Contents
 
 -  Provider HTTP Receivers
 
-   -  Gateway.receiver\_blueprint\_for(name): flask.Blueprint
-   -  Gateway.receiver\_blueprints():(name, flask.Blueprint)\*
-   -  Gateway.receiver\_blueprints\_register(app,
-      prefix='/'):flask.Flask
+   -  Gateway.receiver_blueprint_for(name): flask.Blueprint
+   -  Gateway.receiver_blueprints():(name, flask.Blueprint)\*
+   -  Gateway.receiver_blueprints_register(app, prefix=‘/’):flask.Flask
 
 -  Message Routing
 -  Bundled Providers
@@ -63,7 +64,7 @@ Table of Contents
    -  LogProvider
    -  LoopbackProvider
 
-      -  LoopbackProvider.get\_traffic():list
+      -  LoopbackProvider.get_traffic():list
       -  LoopbackProvider.received(src, body):IncomingMessage
       -  LoopbackProvider.subscribe(number, callback):IProvider
 
@@ -73,6 +74,75 @@ Table of Contents
       -  ForwardServerProvider
 
          -  Routing Server
+
+Tutorial
+========
+
+Sending Messages
+----------------
+
+In order to send a message, you will use a ``Gateway``:
+
+.. code:: python
+
+   from smsframework import Gateway
+   gateway = Gateway()
+
+By itself, it cannot do anything. However, if you install a *provider* –
+a library that implements some SMS service – you can add it to the
+``Gateway`` and configure it to send your messages through a provider:
+
+.. code:: python
+
+   from smsframework_clickatell import ClickatellProvider
+
+   gateway.add_provider('main', ClickatellProvider)  # the default one
+
+The first provider defined becomes the default one. (If you have
+multiple providers, ``Gateway`` supports routing: rules that select
+which provider to use).
+
+Now, let’s send a message:
+
+.. code:: python
+
+   from smsframework import OutgoingMessage
+
+   gateway.send(OutgoingMessage('+123456789', 'hi there!'))
+
+Receiving Messages
+------------------
+
+In order to receive messages, you will use the same ``Gateway`` object
+and ask it to generate an HTTP API endpoint for you. It uses Flask
+framework, and you’ll need to run a Flask application in order to
+receive SMS messages:
+
+.. code:: pyhon
+
+   from flask import Flask
+
+   app = Flask()
+   bp = gateway.receiver_blueprint_for('main')  # SMS receiver
+   app.register_blueprint(bp, url_prefix='/sms/main')  # register it with Flask
+
+Now, use Clickatell’s web interface and register the following URL:
+``http://example.com/sms/main``. It will send you messages to the
+application.
+
+Next, you need to handle the incoming messages in your code. To to this,
+you need to subscribe your handler to the ``gateway.onReceive`` event:
+
+.. code:: python
+
+   def on_receive(message):
+       """ :type message: IncomingMessage """
+       pass  # Your logic here
+
+   gateway.onReceive += on_receive
+
+In addition to receiving messages, you can receive status reports about
+the messages you have sent. See Gateway.onStatus for more information.
 
 Supported Providers
 ===================
@@ -88,6 +158,9 @@ Supported providers list:
 
 -  `Clickatell <https://github.com/kolypto/py-smsframework-clickatell>`__
 -  `Vianett <https://github.com/kolypto/py-smsframework-vianett>`__
+-  `PSWin <https://github.com/dignio/py-smsframework-pswin>`__
+-  `Twilio
+   Studio <https://github.com/dignio/py-smsframework-twiliostudio>`__
 -  Expecting more!
 
 Also see the `full list of
@@ -100,20 +173,20 @@ Install from pypi:
 
 ::
 
-    $ pip install smsframework
+   $ pip install smsframework
 
 Install with some additional providers:
 
 ::
 
-    $ pip install smsframework[clickatell]
+   $ pip install smsframework[clickatell]
 
 To receive SMS messages, you need to ensure that `Flask
 microframework <http://flask.pocoo.org>`__ is also installed:
 
 ::
 
-    $ pip install smsframework[clickatell,receiver]
+   $ pip install smsframework[clickatell,receiver]
 
 Gateway
 =======
@@ -121,13 +194,13 @@ Gateway
 SMSframework handles the whole messaging thing with a single *Gateway*
 object.
 
-Let's start with initializing a gateway:
+Let’s start with initializing a gateway:
 
 .. code:: python
 
-    from smsframework import Gateway
+   from smsframework import Gateway
 
-    gateway = Gateway()
+   gateway = Gateway()
 
 The ``Gateway()`` constructor currently has no arguments.
 
@@ -137,51 +210,53 @@ Providers
 A *Provider* is a package which implements the logic for a specific SMS
 provider.
 
-Each provider reside in an individual package ``smsframework_*``. You'll
+Each provider reside in an individual package ``smsframework_*``. You’ll
 probably want to install `some of these <#supported-providers>`__ first.
 
-Gateway.add\_provider(name, Provider, \*\*config):IProvider Register a provider on the gateway
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Gateway.add_provider(name, Provider, \**config):IProvider Register a provider on the gateway
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Arguments:
 
 -  ``provider: str`` Provider name that will be used to uniquely
    identify it
 -  ``Provider: type`` Provider class that inherits from
-   ``smsframework.IProvider`` You'll use this string in order to send
+   ``smsframework.IProvider`` You’ll use this string in order to send
    messages via a specific provider.
 -  ``**config`` Provider configuration. Please refer to the Provider
    documentation.
 
 .. code:: python
 
-    from smsframework.providers import NullProvider
-    from smsframework_clickatell import ClickatellProvider
+   from smsframework.providers import NullProvider
+   from smsframework_clickatell import ClickatellProvider
 
-    gateway.add_provider('main', ClickatellProvider)  # the default ont
-    gateway.add_provider('null', NullProvider)
+   gateway.add_provider('main', ClickatellProvider)  # the default one
+   gateway.add_provider('null', NullProvider)
 
 The first provider defined becomes the default one: used in case the
 routing function has no better idea. See: `Message
 Routing <#message-routing>`__.
 
-Gateway.default\_provider
-~~~~~~~~~~~~~~~~~~~~~~~~~
+Gateway.default_provider
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 Property which contains the default provider name. You can change it to
 something else:
 
 .. code:: python
 
-    gateway.default_provider = 'null'
+   gateway.default_provider = 'null'
 
-Gateway.get\_provider(name):IProvider
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Gateway.get_provider(name):IProvider
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Get a provider by name
 
-You don't normally need this, unless the provider has some public API:
+You don’t normally need this, unless the provider has some public API:
 refer to the provider documentation for the details.
+
+.. _sending-messages-1:
 
 Sending Messages
 ----------------
@@ -216,9 +291,9 @@ populated: ``msgid``, ``meta``, ..
 
 .. code:: python
 
-    from smsframework import OutgoingMessage
+   from smsframework import OutgoingMessage
 
-    msg = gateway.send(OutgoingMessage('+123456789', 'hi there!'))
+   msg = gateway.send(OutgoingMessage('+123456789', 'hi there!'))
 
 A message sending fail when the provider raises an exception. This
 typically occurs when the wrapped HTTP API has returned an immediate
@@ -238,7 +313,7 @@ Event hook is a python callable which accepts arguments explained in the
 further sections.
 
 Note that if you accidentally replace the hook with a callable (using
-the ``=`` operator instead of ``+=``), you'll end up having a single
+the ``=`` operator instead of ``+=``), you’ll end up having a single
 hook, but smsframework will continue to work normally: thanks to the
 implementation.
 
@@ -262,11 +337,11 @@ place where ``Gateway.send()`` was called!
 
 .. code:: python
 
-    def on_send(message):
-        """ :type message: OutgoingMessage """
-        print message
+   def on_send(message):
+       """ :type message: OutgoingMessage """
+       print(message)
 
-    gw.onSend += on_send
+   gw.onSend += on_send
 
 Gateway.onReceive
 ~~~~~~~~~~~~~~~~~
@@ -284,11 +359,11 @@ with increasing delays.
 
 .. code:: python
 
-    def on_receive(message):
-        """ :type message: IncomingMessage """
-        print message
+   def on_receive(message):
+       """ :type message: IncomingMessage """
+       print(message)
 
-    gw.onReceive += on_receive
+   gw.onReceive += on_receive
 
 Gateway.onStatus
 ~~~~~~~~~~~~~~~~
@@ -309,11 +384,11 @@ with increasing delays.
 
 .. code:: python
 
-    def on_status(status):
-        """ :type status: MessageStatus """
-        print status
+   def on_status(status):
+       """ :type status: MessageStatus """
+       print(status)
 
-    gw.onStatys += status
+   gw.onStatus += on_status
 
 Data Objects
 ============
@@ -371,8 +446,8 @@ The resources are provider-dependent: refer to the provider
 documentation for the details. The recommended approach is to use
 ``/im`` for incoming messages, and ``/status`` for status reports.
 
-Gateway.receiver\_blueprint\_for(name): flask.Blueprint
--------------------------------------------------------
+Gateway.receiver_blueprint_for(name): flask.Blueprint
+-----------------------------------------------------
 
 Get a Flask blueprint for the named provider that handles incoming
 messages & status reports.
@@ -387,8 +462,8 @@ Errors:
 This method is mostly internal, as the following ones are usually much
 more convenient.
 
-Gateway.receiver\_blueprints():(name, flask.Blueprint)\* Get Flask blueprints for every provider that supports it.
-------------------------------------------------------------------------------------------------------------------
+Gateway.receiver_blueprints():(name, flask.Blueprint)\* Get Flask blueprints for every provider that supports it.
+-----------------------------------------------------------------------------------------------------------------
 
 The method is a generator that yields ``(name, blueprint)`` tuples,
 where ``blueprint`` is ``flask.Blueprint`` for provider named ``name``.
@@ -397,44 +472,44 @@ Use this method to register your receivers manually:
 
 .. code:: python
 
-    from flask import Flask
+   from flask import Flask
 
-    app = Flask()
+   app = Flask()
 
-    for name, bp in gateway.receiver_blueprints():
-        app.register_blueprint(bp, url_prefix='/sms/'+name)
+   for name, bp in gateway.receiver_blueprints():
+       app.register_blueprint(bp, url_prefix='/sms/'+name)
 
 With the example above, each receivers will be registered under */name*
 prefix.
 
-Assuming the *'clickatell'* provider defines */im* and */status*
+Assuming the *‘clickatell’* provider defines */im* and */status*
 receivers and your app is running on *http://localhost:5000/*, you will
 configure the SMS service to send messages to:
 
 -  http://localhost:5000/sms/clickatell/im
 -  http://localhost:5000/sms/clickatell/status
 
-Gateway.receiver\_blueprints\_register(app, prefix='/'):flask.Flask
--------------------------------------------------------------------
+Gateway.receiver_blueprints_register(app, prefix=‘/’):flask.Flask
+-----------------------------------------------------------------
 
 Register all provider receivers on the provided Flask application under
-'/{prefix}/provider-name'.
+‘/{prefix}/provider-name’.
 
 This is a convenience method to register all blueprints at once using
 the following recommended rules:
 
 -  If ``prefix`` is provided, all blueprints are registered under this
    prefix
--  Provider receivers are registered under '/provider-name' path
+-  Provider receivers are registered under ‘/provider-name’ path
 
-It's adviced to mount the receivers under some difficult-to-guess
+It’s adviced to mount the receivers under some difficult-to-guess
 prefix: otherwise, attackers can send fake messages into your system!
 
 Secure example:
 
 .. code:: js
 
-    gateway.receiver_blueprints_register(app, '/24fb0d6963f/');
+   gateway.receiver_blueprints_register(app, '/24fb0d6963f/');
 
 NOTE: Other mechanisms, such as basic authentication, are not typically
 useful as some services do not support that.
@@ -452,8 +527,8 @@ pick.
 In order to achieve flexible message routing, we need to associate some
 metadata with each message, for instance:
 
--  ``module``: name of the sending module: e.g. "users"
--  ``type``: type of the message: e.g. "notification"
+-  ``module``: name of the sending module: e.g. “users”
+-  ``type``: type of the message: e.g. “notification”
 
 These 2 arbitrary strings need to be standardized in the application
 code, thus offering the possibility to define complex routing rules.
@@ -463,7 +538,7 @@ specify these values:
 
 .. code:: python
 
-    gateway.send(OutgoingMessage('+1234', 'hi').route('users', 'notification'))
+   gateway.send(OutgoingMessage('+1234', 'hi').route('users', 'notification'))
 
 Now, set a router function on the gateway: a function which gets an
 outgoing message + some additional routing values, and decides on the
@@ -471,20 +546,20 @@ provider to use:
 
 .. code:: python
 
-    gateway.add_provider('primary', ClickatellProvider, ...)
-    gateway.add_provider('quick', ClickatellProvider, ...)
-    gateway.add_provider('usa', ClickatellProvider, ...)
+   gateway.add_provider('primary', ClickatellProvider, ...)
+   gateway.add_provider('quick', ClickatellProvider, ...)
+   gateway.add_provider('usa', ClickatellProvider, ...)
 
-    def router(message, module, type):
-        """ Custom router function """
-        if message.dst.startswith('1'):
-            return 'usa'  # Use 'usa' for all messages sent to the United States
-        elif type == 'notification':
-            return 'quick'  # use the 'quick' for all notifications
-        else:
-            return None  # Use the default provider ('primary') for everything else
+   def router(message, module, type):
+       """ Custom router function """
+       if message.dst.startswith('1'):
+           return 'usa'  # Use 'usa' for all messages sent to the United States
+       elif type == 'notification':
+           return 'quick'  # use the 'quick' for all notifications
+       else:
+           return None  # Use the default provider ('primary') for everything else
 
-        self.gw.router = router
+       self.gw.router = router
 
 Router function is also the right place to specify provider-specific
 options.
@@ -513,9 +588,9 @@ Status: Not implemented
 
 .. code:: python
 
-    from smsframework.providers import NullProvider
+   from smsframework.providers import NullProvider
 
-    gw.add_provider('null', NullProvider)
+   gw.add_provider('null', NullProvider)
 
 LogProvider
 -----------
@@ -542,10 +617,10 @@ Example:
 
 .. code:: python
 
-    import logging
-    from smsframework.providers import LogProvider
+   import logging
+   from smsframework.providers import LogProvider
 
-    gw.add_provider('log', LogProvider, logger=logging.getLogger(__name__))
+   gw.add_provider('log', LogProvider, logger=logging.getLogger(__name__))
 
 LoopbackProvider
 ----------------
@@ -572,8 +647,8 @@ Receipt: simulation with a method
 
 Status: always reports success
 
-LoopbackProvider.get\_traffic():list
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+LoopbackProvider.get_traffic():list
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 LoopbackProvider stores all messages that go through it: both
 IncomingMessage and OutgoingMessage.
@@ -583,13 +658,13 @@ message log and returns its previous state:
 
 .. code:: python
 
-    from smsframework.providers import LoopbackProvider
+   from smsframework.providers import LoopbackProvider
 
-    gateway.add_provider('lo', LoopbackProvider);
-    gateway.send(OutgoingMessage('+123', 'hi'))
+   gateway.add_provider('lo', LoopbackProvider);
+   gateway.send(OutgoingMessage('+123', 'hi'))
 
-    traffic = gateway.get_provider('lo').get_traffic()
-    print traffic[0].body  #-> 'hi'
+   traffic = gateway.get_provider('lo').get_traffic()
+   print(traffic[0].body)  #-> 'hi'
 
 LoopbackProvider.received(src, body):IncomingMessage
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -621,14 +696,14 @@ Arguments:
 
 .. code:: python
 
-    def subscriber(message):
-        print message  #-> OutgoingMessage('1', 'obey me')
-        message.reply('got it')  # use the augmented reply method
+   def subscriber(message):
+       print(message)  #-> OutgoingMessage('1', 'obey me')
+       message.reply('got it')  # use the augmented reply method
 
-    provider = gateway.get_provider('lo')
-    provider.subscribe('+1', subscriber)  # register the subscriber
+   provider = gateway.get_provider('lo')
+   provider.subscribe('+1', subscriber)  # register the subscriber
 
-    gateway.send('+1', 'obey me')
+   gateway.send('+1', 'obey me')
 
 ForwardServerProvider, ForwardClientProvider
 --------------------------------------------
@@ -643,7 +718,7 @@ A pair of providers to bind two application instances together:
 -  ``ForwardServerProvider`` is the remote server which:
 
    -  Gets outgoing messages from clients and loops them back to the
-      gateway so they're sent with another provider
+      gateway so they’re sent with another provider
    -  Hooks into the gateway and passes all incoming messages and
       statuses to the clients
 
@@ -656,7 +731,7 @@ To support message receipt, include the necessary dependencies:
 
 ::
 
-    pip install smsframework[receiver,async]
+   pip install smsframework[receiver,async]
 
 ForwardClientProvider
 ~~~~~~~~~~~~~~~~~~~~~
@@ -665,10 +740,10 @@ Example setup:
 
 .. code:: python
 
-    from smsframework.providers import ForwardClientProvider
+   from smsframework.providers import ForwardClientProvider
 
-    gw.add_provider('fwd', ForwardClientProvider, 
-                    server_url='http://sms.example.com/sms/fwd')
+   gw.add_provider('fwd', ForwardClientProvider, 
+                   server_url='http://sms.example.com/sms/fwd')
 
 Configuration:
 
@@ -682,13 +757,13 @@ Example setup:
 
 .. code:: python
 
-    from smsframework.providers import ForwardServerProvider
+   from smsframework.providers import ForwardServerProvider
 
-    gw.add_provider(....)  # Default provider
-    gw.add_provider('fwd', ForwardServerProvider, clients=[
-        'http://a.example.com/sms/fwd',
-        'http://b.example.com/sms/fwd',
-    ])
+   gw.add_provider(....)  # Default provider
+   gw.add_provider('fwd', ForwardServerProvider, clients=[
+       'http://a.example.com/sms/fwd',
+       'http://b.example.com/sms/fwd',
+   ])
 
 Configuration:
 
@@ -705,26 +780,26 @@ If you want to forward only specific messages, you need to override the
 ```MessageStatus`` <#messagestatus>`__, it should return a list of
 client URLs the object should be forwarded to.
 
-Example: send all messages to "a.example.com", and status reports to
-"b.example.com":
+Example: send all messages to “a.example.com”, and status reports to
+“b.example.com”:
 
 .. code:: python
 
-    from smsframework import ForwardServerProvider
-    from smsframework.data import OutgoingMessage, MessageStatus
+   from smsframework import ForwardServerProvider
+   from smsframework.data import OutgoingMessage, MessageStatus
 
-    class RoutingProvider(ForwardServerProvider):
-        def choose_clients(self, obj):
-            if isinstance(obj, OutgoingMessage):
-                return [ self.clients[0] ]
-            else:
-                return [ self.clients[1] ]
-                
-    gw.add_provider(....)  # Default provider
-    gw.add_provider('fwd', RoutingProvider, clients=[
-        'http://a.example.com/sms/fwd',
-        'http://b.example.com/sms/fwd',
-    ])
+   class RoutingProvider(ForwardServerProvider):
+       def choose_clients(self, obj):
+           if isinstance(obj, OutgoingMessage):
+               return [ self.clients[0] ]
+           else:
+               return [ self.clients[1] ]
+               
+   gw.add_provider(....)  # Default provider
+   gw.add_provider('fwd', RoutingProvider, clients=[
+       'http://a.example.com/sms/fwd',
+       'http://b.example.com/sms/fwd',
+   ])
 
 Async
 ^^^^^
@@ -736,7 +811,7 @@ Just install the ``asynctools`` dependency:
 
 ::
 
-    pip install smsframework[receiver,async]
+   pip install smsframework[receiver,async]
 
 Authentication
 ^^^^^^^^^^^^^^
@@ -745,9 +820,6 @@ Both Client and Server support HTTP basic authentication in URLs:
 
 ::
 
-    http://user:password@a.example.com/sms/fwd
+   http://user:password@a.example.com/sms/fwd
 
 For requests. Server-side authentication is your responsibility ;)
-
-.. |Build Status| image:: https://api.travis-ci.org/kolypto/py-smsframework.png?branch=master
-   :target: https://travis-ci.org/kolypto/py-smsframework

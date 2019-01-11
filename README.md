@@ -27,6 +27,7 @@ Key features:
 Table of Contents
 =================
 
+* <a href="#tutorial">Tutorial</a>
 * <a href="#user-content-supported-providers">Supported Providers</a>
 * <a href="#user-content-installation">Installation</a>
 * <a href="#user-content-gateway">Gateway</a>
@@ -61,7 +62,74 @@ Table of Contents
         * <a href="#user-content-forwardclientprovider">ForwardClientProvider</a>
         * <a href="#user-content-forwardserverprovider">ForwardServerProvider</a>
             * <a href="#user-content-routing-server">Routing Server</a> 
+            
+            
+            
+            
+            
+Tutorial
+========
 
+## Sending Messages
+
+In order to send a message, you will use a `Gateway`:
+
+```python
+from smsframework import Gateway
+gateway = Gateway()
+```
+
+By itself, it cannot do anything. However, if you install a *provider* -- a library that implements some SMS service --
+you can add it to the `Gateway` and configure it to send your messages through a provider:
+
+```python
+from smsframework_clickatell import ClickatellProvider
+
+gateway.add_provider('main', ClickatellProvider)  # the default one
+```
+
+The first provider defined becomes the default one. 
+(If you have multiple providers, `Gateway` supports routing: rules that select which provider to use).
+
+Now, let's send a message:
+
+```python
+from smsframework import OutgoingMessage
+
+gateway.send(OutgoingMessage('+123456789', 'hi there!'))
+``` 
+
+ 
+
+## Receiving Messages
+
+In order to receive messages, you will use the same `Gateway` object and ask it to generate an HTTP API endpoint
+for you. It uses Flask framework, and you'll need to run a Flask application in order to receive SMS messages:
+
+```pyhon
+from flask import Flask
+
+app = Flask()
+bp = gateway.receiver_blueprint_for('main')  # SMS receiver
+app.register_blueprint(bp, url_prefix='/sms/main')  # register it with Flask
+```
+
+Now, use Clickatell's web interface and register the following URL: `http://example.com/sms/main`.
+It will send you messages to the application.
+
+Next, you need to handle the incoming messages in your code.
+To to this, you need to subscribe your handler to the `gateway.onReceive` event:
+
+```python
+def on_receive(message):
+    """ :type message: IncomingMessage """
+    pass  # Your logic here
+
+gateway.onReceive += on_receive
+```
+
+In addition to receiving messages, you can receive status reports about the messages you have sent.
+See <a href="#user-content-gatewayonstatus">Gateway.onStatus</a> for more information.
 
 
 
@@ -80,6 +148,8 @@ Supported providers list:
 
 * [Clickatell](https://github.com/kolypto/py-smsframework-clickatell)
 * [Vianett](https://github.com/kolypto/py-smsframework-vianett)
+* [PSWin](https://github.com/dignio/py-smsframework-pswin)
+* [Twilio Studio](https://github.com/dignio/py-smsframework-twiliostudio)
 * Expecting more!
 
 Also see the [full list of providers](https://pypi.python.org/pypi?%3Aaction=search&term=smsframework).
@@ -147,7 +217,7 @@ Arguments:
 from smsframework.providers import NullProvider
 from smsframework_clickatell import ClickatellProvider
 
-gateway.add_provider('main', ClickatellProvider)  # the default ont
+gateway.add_provider('main', ClickatellProvider)  # the default one
 gateway.add_provider('null', NullProvider)
 ```
 
@@ -236,7 +306,7 @@ Note that if the hook raises an Exception, it will propagate to the place where 
 ```python
 def on_send(message):
     """ :type message: OutgoingMessage """
-    print message
+    print(message)
 
 gw.onSend += on_send
 ```
@@ -254,7 +324,7 @@ Most services will retry the message delivery with increasing delays.
 ```python
 def on_receive(message):
     """ :type message: IncomingMessage """
-    print message
+    print(message)
 
 gw.onReceive += on_receive
 ```
@@ -274,9 +344,9 @@ Most services will retry the status delivery with increasing delays.
 ```python
 def on_status(status):
     """ :type status: MessageStatus """
-    print status
+    print(status)
 
-gw.onStatys += status
+gw.onStatus += on_status
 ```
 
 
@@ -529,7 +599,7 @@ gateway.add_provider('lo', LoopbackProvider);
 gateway.send(OutgoingMessage('+123', 'hi'))
 
 traffic = gateway.get_provider('lo').get_traffic()
-print traffic[0].body  #-> 'hi'
+print(traffic[0].body)  #-> 'hi'
 ```
 
 ### LoopbackProvider.received(src, body):IncomingMessage
@@ -555,7 +625,7 @@ Arguments:
 
 ```python
 def subscriber(message):
-    print message  #-> OutgoingMessage('1', 'obey me')
+    print(message)  #-> OutgoingMessage('1', 'obey me')
     message.reply('got it')  # use the augmented reply method
 
 provider = gateway.get_provider('lo')
