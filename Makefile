@@ -6,8 +6,8 @@ SHELL := /bin/bash
 .PHONY: clean
 clean:
 	@rm -rf build/ dist/ *.egg-info/
-README.md: $(shell find smsframework/) #$(wildcard misc/_doc/**)
-	@python misc/_doc/README.py | j2 --format=json -o README.md misc/_doc/README.md.j2
+#README.md:
+#	@python misc/_doc/README.py | j2 --format=json -o README.md misc/_doc/README.md.j2
 README.rst: README.md
 	@pandoc -f markdown -t rst -o README.rst README.md
 
