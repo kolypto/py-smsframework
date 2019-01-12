@@ -5,10 +5,10 @@ import logging
 
 try: # Py3
     from urllib.request import urlopen, Request, HTTPError, URLError
-    from urllib.parse import urlparse
+    from urllib.parse import urlsplit, urlunsplit
 except ImportError: # Py2
     from urllib2 import urlopen, Request, HTTPError, URLError
-    import urlparse
+    from urlparse import urlsplit, urlunsplit
 
 from smsframework import IProvider, exc
 from .jsonex import JsonExEncoder, JsonExDecoder
@@ -45,7 +45,7 @@ def jsonex_dumps(data):
     """ Serialize with JsonEx
     :rtype: basestring
     """
-    return json.dumps(data, cls=JsonExEncoder)
+    return json.dumps(data, cls=JsonExEncoder).encode()
 
 
 def jsonex_loads(s):
@@ -90,12 +90,12 @@ def _parse_authentication(url):
         u, h = _parse_authentication._memoize[url]
     else:
         # Parse
-        p = urlparse.urlsplit(url, 'http')
+        p = urlsplit(url, 'http')
         if p.username and p.password:
             # Prepare header
-            h['Authorization'] = b'Basic ' + base64.b64encode(p.username + b':' + p.password)
+            h['Authorization'] = b'Basic ' + base64.b64encode(p.username.encode() + b':' + p.password.encode())
             # Remove authentication info since urllib2.Request() does not understand it
-            u = urlparse.urlunsplit((p.scheme, p.netloc.split('@', 1)[1], p.path, p.query, p.fragment))
+            u = urlunsplit((p.scheme, p.netloc.split('@', 1)[1], p.path, p.query, p.fragment))
         # Cache
         _parse_authentication._memoize[url] = (u, h)
 
@@ -122,21 +122,21 @@ def jsonex_request(url, data, headers=None):
 
     # Request
     try:
-        req = urllib2.Request(url, headers=headers)
-        response = urllib2.urlopen(req, jsonex_dumps(data))
+        req = Request(url, headers=headers)
+        response = urlopen(req, jsonex_dumps(data))
         res_str = response.read()
         res = jsonex_loads(res_str)
-    except urllib2.HTTPError as e:
+    except HTTPError as e:
         if 'Content-Type' in e.headers and e.headers['Content-Type'] == 'application/json':
             res = jsonex_loads(e.read())
         else:
             raise exc.ServerError('Server at "{}" failed: {}'.format(url, e))
-    except urllib2.URLError as e:
+    except URLError as e:
         raise exc.ConnectionError('Connection to "{}" failed: {}'.format(url, e))
 
     # Errors?
     if 'error' in res:  # Exception object
-        raise res['error']
+        raise res['error']  # Error raised by the remote side
 
     return res
 

@@ -60,7 +60,7 @@ class JsonExDecoder(JSONDecoder):
 
             # Special handling for dates
             if cls == 'datetime':
-                return datetime.strptime(props, '%Y-%m-%dT%H:%M:%S')
+                return datetime.strptime(props, '%Y-%m-%dT%H:%M:%S.%f')
             elif cls == 'date':
                 return datetime.strptime(props, '%Y-%m-%d').date()
             elif cls == 'time':
@@ -74,7 +74,7 @@ class JsonExDecoder(JSONDecoder):
                     o = C(**props)
                 elif inspect.isclass(C):
                     # Dict constructor
-                    if not inspect.ismethod(C.__init__):
+                    if not hasattr(C, '__init__') or C.__init__ is object.__init__:
                         # Classes without an explicitly declared constructor
                         o = C()
                     else:

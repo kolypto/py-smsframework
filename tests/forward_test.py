@@ -1,13 +1,21 @@
 import unittest
 import time
+import threading
 from datetime import datetime
-from multiprocessing import Process
 
-from flask import Flask
+from flask import Flask, request
 
 from smsframework import Gateway, exc
 from smsframework.providers import ForwardClientProvider, ForwardServerProvider, LoopbackProvider
-from smsframework import OutgoingMessage
+from smsframework import OutgoingMessage, IncomingMessage
+from smsframework.providers.forward.provider import jsonex_dumps, jsonex_loads
+
+try: # Py3
+    from urllib.request import urlopen, Request
+    from http.client import RemoteDisconnected
+except ImportError: # Py2
+    from urllib2 import urlopen, Request
+
 
 
 
@@ -29,39 +37,86 @@ class ForwardProviderTest(unittest.TestCase):
         # Register gateway receivers
         gw.receiver_blueprints_register(app, prefix='/sms')
 
+        # Stop manually
+        @app.route('/kill', methods=['GET','POST'])
+        def kill():
+            func = request.environ.get('werkzeug.server.shutdown')
+            if func is None:
+                raise RuntimeError('Not running with the Werkzeug Server')
+            func()
+            return ''
+
         # Run
         app.run('0.0.0.0', port, threaded=False, use_reloader=False, passthrough_errors=True)
 
     def setUp(self):
         # Init: client gateway
+        # This "client" sends messages through a remote server
         self.gw_client = Gateway()
         self.gw_client.add_provider('fwd', ForwardClientProvider, server_url='http://a:b@localhost:5001/sms/fwd')
 
         # Init: server gateway
+        # This "server" receives messages from an external SMS server and forwards them to the client
         self.gw_server = Gateway()
         self.gw_server.add_provider('lo', LoopbackProvider)
         self.gw_server.add_provider('fwd', ForwardServerProvider, clients=['http://a:b@localhost:5000/sms/fwd'])
-        self.lo = self.gw_server.get_provider('lo')
+        self.lo = self.gw_server.get_provider('lo')  # This is run in another thread, but we should have access to it
         ' :type: LoopbackProvider '
 
         # Run client in a thread
-        self.t_client = Process(target=self._runFlask, args=(self.gw_client, 5000))
+        self.t_client = threading.Thread(target=self._runFlask, args=(self.gw_client, 5000))
         self.t_client.start()
 
         # Run server in a thread
-        self.t_server = Process(target=self._runFlask, args=(self.gw_server, 5001))
+        self.t_server = threading.Thread(target=self._runFlask, args=(self.gw_server, 5001))
         self.t_server.start()
 
         # Give Flask some time to initialize
         time.sleep(0.5)
 
     def tearDown(self):
-        self.t_client.terminate()
-        self.t_server.terminate()
+        # Kill threads
+        for port, thread in ((5000, self.t_client), (5001, self.t_server)):
+            #try:
+            response = urlopen(Request('http://localhost:{}/kill'.format(port)))
+            #except RemoteDisconnected: pass
+            thread.join()
+
+    def test_jsonex(self):
+        """ Test de/coding messages """
+        ### OutgoingMessage
+        om_in = OutgoingMessage('+123', 'Test', '+987', 'fwd')
+        om_in.options(allow_reply=True)
+        # Encode, Decode
+        j = jsonex_dumps(om_in)
+        om_out = jsonex_loads(j)
+        """ :type om_out: OutgoingMessage """
+        # Check
+        self.assertEqual(om_out.dst, '123')
+        self.assertEqual(om_out.src, om_in.src)
+        self.assertEqual(om_out.body, om_in.body)
+        self.assertEqual(om_out.provider, om_in.provider)
+        self.assertEqual(om_out.meta, None)
+        self.assertEqual(om_out.provider_options.allow_reply, om_in.provider_options.allow_reply)
+        self.assertEqual(om_out.provider_params, {})
+
+        ### IncomingMessage
+        im_in = IncomingMessage('+123', 'Test', 'abc123def', '+987', datetime(2019,1,1,15,0,0,875), {'a':1})
+        # Encode, Decode
+        j = jsonex_dumps(im_in)
+        im_out = jsonex_loads(j)
+        """ :type im_out: IncomingMessage """
+        # Check
+        self.assertEqual(im_out.src, im_in.src)
+        self.assertEqual(im_out.body, im_in.body)
+        self.assertEqual(im_out.msgid, im_in.msgid)
+        self.assertEqual(im_out.dst, im_in.dst)
+        self.assertEqual(im_out.rtime, im_in.rtime)
+        self.assertEqual(im_out.meta, im_in.meta)
+
 
     def testSend(self):
         """ Send messages """
-        return
 
         # Send a message
         om = OutgoingMessage('+1234', 'Hi man!').options(senderId='me').params(a=1).route(1, 2, 3)
@@ -85,7 +140,6 @@ class ForwardProviderTest(unittest.TestCase):
 
     def testReceive(self):
         """ Receive messages """
-        return
 
         # Message receiver
         received = []
@@ -110,7 +164,6 @@ class ForwardProviderTest(unittest.TestCase):
 
     def testStatus(self):
         """ Receive statuses """
-        return
 
         # Status receiver
         statuses = []
@@ -143,7 +196,6 @@ class ForwardProviderTest(unittest.TestCase):
 
     def testServerError(self):
         """ Test how errors are transferred from the server """
-        return
 
         # Erroneous subscribers
         def tired_subscriber(message):
@@ -164,10 +216,10 @@ class ForwardProviderTest(unittest.TestCase):
 
     def testClientError(self):
         """ Test how server behaves when the client cannot receive """
-        return
 
         # Message receiver
         def failing_receiver(message):
+            print(message)
             raise OverflowError(':(')
         self.gw_client.onReceive += failing_receiver
 
