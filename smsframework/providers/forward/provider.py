@@ -52,7 +52,7 @@ def jsonex_loads(s):
     """ Unserialize with JsonEx
     :rtype: dict
     """
-    return json.loads(s, cls=JsonExDecoder, classes=classes, exceptions=exceptions)
+    return json.loads(s.decode('utf-8'), cls=JsonExDecoder, classes=classes, exceptions=exceptions)
 
 
 def jsonex_api(f):

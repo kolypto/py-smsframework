@@ -10,10 +10,9 @@ from smsframework.providers import ForwardClientProvider, ForwardServerProvider,
 from smsframework import OutgoingMessage, IncomingMessage
 from smsframework.providers.forward.provider import jsonex_dumps, jsonex_loads
 
-try: # Py3
+try:  # Py3
     from urllib.request import urlopen, Request
-    from http.client import RemoteDisconnected
-except ImportError: # Py2
+except ImportError:  # Py2
     from urllib2 import urlopen, Request
 
 
